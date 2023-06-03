@@ -13,5 +13,5 @@ python app.py
 
 1. Open the browser
 ```
-http://localhost:5000
+http://localhost:5000/canvas
 ```
