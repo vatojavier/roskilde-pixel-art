@@ -1,17 +1,41 @@
 # roskilde-pixel-art
 
-
+## Install requirements
 1. Install requirements
 ```
 pip install -r requirements.txt
 ```
 
-1. Run the script
+1. Install Docker
+
+1. Pull docker image
+```
+docker pull postgres
+```
+
+1. Build docker image
+```
+docker build -t postgres-roskilde .
+```
+
+
+
+## Execute
+
+1. Run docker image
+```
+docker run -d --name pg-roskilde -e POSTGRES_PASSWORD=hahalmao -p 5432:5432 -v $(pwd)/data/db:/var/lib/postgresql/data postgres-roskilde
+```
+
+1. Run server
 ```
 python app.py
 ```
 
-1. Open the browser
+## Database stuff
+
+Access database
 ```
-http://localhost:5000/canvas
+docker ps
+docker exec -it <ID> psql -U postgres
 ```
