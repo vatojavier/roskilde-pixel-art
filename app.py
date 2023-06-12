@@ -6,17 +6,18 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models import User
 from datetime import datetime
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret"
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 grid_size = 10
 
 
 engine = create_engine("postgresql://python:python1234@localhost/roskildepixels")
 Session = sessionmaker(bind=engine)
-
+session = Session()
 
 @app.route("/")
 def index():
@@ -25,7 +26,7 @@ def index():
 
 @app.route("/canvas")
 def canvas():
-    session = Session()
+
     user_id = request.cookies.get("user_id")
 
     if not user_id:
