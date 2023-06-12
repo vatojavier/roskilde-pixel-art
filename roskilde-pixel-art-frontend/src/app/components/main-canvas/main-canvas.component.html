@@ -1,0 +1,7 @@
+<p>main-canvas works!</p>
+<div>
+    <input type="color" id="head" name="head"  [(ngModel)]="selectedPixelColor">
+</div>
+<canvas #canvas width="600" height="300"></canvas>
+<div>Total Pixel Count:{{totalPixels}}</div>
+<button (click)="sendMessage('message','hello!')">send message</button>
