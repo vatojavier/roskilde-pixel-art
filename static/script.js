@@ -4,8 +4,11 @@ const colors = document.querySelectorAll(".color");
 let selectedColor = 'red'; // Default color
 
 // Grid size and pixel size
-const gridSize = 50;
-const pixelSize = canvas.width / gridSize;
+// const gridSize = 100;
+const pixelSize = canvas.height / gridSize;
+// const pixelSize = 300;
+console.log("Pixel size:", pixelSize);
+
 
 // Add click event to each color
 colors.forEach((color) => {
@@ -31,7 +34,9 @@ canvas.addEventListener('click', (e) => {
     const rect = canvas.getBoundingClientRect();
     const x = Math.floor((e.clientX - rect.left) / pixelSize);
     const y = Math.floor((e.clientY - rect.top) / pixelSize);
+
     ctx.fillStyle = selectedColor;
+
     ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
     socket.emit('draw', {x: x, y: y, color: selectedColor});
 });

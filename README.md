@@ -22,9 +22,14 @@ docker build -t postgres-roskilde .
 
 ## Execute
 
-1. Run docker image
+1. Run docker image for first time
 ```
 docker run -d --name pg-roskilde -e POSTGRES_PASSWORD=hahalmao -p 5432:5432 -v $(pwd)/data/db:/var/lib/postgresql/data postgres-roskilde
+```
+
+1. Run docker image
+```
+docker start pg-roskilde
 ```
 
 1. Run server

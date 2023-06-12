@@ -1,12 +1,24 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Pixel Canvas</title>
     <style>
-        canvas { border: 1px solid black; }
-        .color { cursor: pointer; width: 20px; height: 20px; display: inline-block; }
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .color {
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+        }
     </style>
 </head>
+
 <body>
     <div id="color-picker">
         <div class="color" style="background-color: red;"></div>
@@ -14,8 +26,13 @@
         <div class="color" style="background-color: green;"></div>
         <!-- Add more colors as you wish -->
     </div>
-    <canvas id="canvas" width="500" height="500"></canvas>
+    <canvas id="canvas" width="1000" height="500"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+    <script>
+        var gridSize = "{{ grid_size }}";
+        console.log(gridSize);
+    </script>
     <script src="{{url_for('static', filename='script.js')}}"></script>
 </body>
+
 </html>
