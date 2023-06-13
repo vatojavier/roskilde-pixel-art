@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas Grid</title>
+    <style>
+        #myCanvas {
+            border: 1px solid #d3d3d3;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="1000" height="500"></canvas>
+
+    <script>
+        let canvas = document.getElementById("myCanvas");
+        let ctx = canvas.getContext("2d");
+
+        const tileNumberX = 20; // The number of tiles you want to fit horizontally
+        const tileNumberY = 10; // The number of tiles you want to fit vertically
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+
+        // Calculate the size of each square
+        let tileSizeX = canvasWidth / tileNumberX;
+        let tileSizeY = canvasHeight / tileNumberY;
+
+        if (tileSizeX * tileNumberX !== canvasWidth || tileSizeY * tileNumberY !== canvasHeight) {
+            console.log("The canvas size is not compatible with the tile size and the number of tiles");
+        } else {
+            for(let i = 0; i < tileNumberX; i++) {
+                for(let j = 0; j < tileNumberY; j++) {
+                    ctx.strokeRect(i * tileSizeX, j * tileSizeY, tileSizeX, tileSizeY);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

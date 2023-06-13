@@ -12,7 +12,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret"
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-grid_size = 10
+grid_size = 50
 
 
 engine = create_engine("postgresql://python:python1234@localhost/roskildepixels")
@@ -40,7 +40,7 @@ def canvas():
         # Set a cookie that expires in 1 year
         expires = int(time.time()) + 60 * 60 * 24 * 365
         response = app.make_response(
-            render_template("canvas.html", grid_size=grid_size)
+            render_template("canvas2.html", grid_size=grid_size)
         )
         response.set_cookie("user_id", user_id, expires=expires)
     else:
@@ -58,7 +58,7 @@ def canvas():
         else:
             user.last_seen_at = datetime.utcnow()
 
-        response = render_template("canvas.html", grid_size=grid_size)
+        response = render_template("canvas2.html", grid_size=grid_size)
 
     # Commit changes and close the session
     session.commit()
