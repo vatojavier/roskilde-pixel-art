@@ -41,7 +41,7 @@ export class MainCanvasComponent implements OnInit {
 
     this.websocketService.onDraw().subscribe((response: any) => {
       console.log('onDraw response', response);
-      this.draw(response.x, response.y, response.color, false, false);
+      this.drawFromGrid(response.x, response.y, response.color);
    });
   }
 
@@ -58,7 +58,12 @@ export class MainCanvasComponent implements OnInit {
     this.canvasWidth = canvasElement.width;
     this.canvasHeight = canvasElement.height;
 
-    this.gridSize = 50;
+    // Check that the ratio makes squared tiles
+    if(this.canvasWidth / this.tileNumberX != this.canvasHeight / this.tileNumberY) {
+      console.error('The ratio of the canvas width and height does not match the ratio of the tile numbers');
+    }
+
+    // this.gridSize = 50;
     this.pixelSize = canvasElement.width / this.gridSize;
 
     // Calculate the size of each tile
@@ -139,6 +144,17 @@ export class MainCanvasComponent implements OnInit {
   //   }
   // }
 
+  drawFromGrid(x: number, y: number, color: string): void {
+    // Verify that the x and y are valid
+    if (x < 0 || x >= this.tileNumberX || y < 0 || y >= this.tileNumberY) {
+        console.log('Invalid grid coordinates', x, y);
+        return;
+    }
+    // Draw the pixel
+    this.context.fillStyle = color;
+    this.context.fillRect(x * this.tileSizeX, y * this.tileSizeY, this.tileSizeX, this.tileSizeY);
+  }
+
   draw(x: number, y: number, color: string = this.selectedPixelColor, emit: boolean = true, isOwner : boolean = true): void {
     
     const canvasElement = this.canvas.nativeElement;
@@ -149,13 +165,15 @@ export class MainCanvasComponent implements OnInit {
 
     // canvasX = x - rect.left;
     // canvasY = y - rect.top;
+
+    console.log('draw',x,y,canvasX,canvasY,color);
     
     this.context.fillStyle = color;
 
     this.context.fillRect(canvasX * this.tileSizeX, canvasY * this.tileSizeY, this.tileSizeX, this.tileSizeY);
 
     if (emit){
-      this.sendMessage('draw', {x: x, y: y, color: color});
+      this.sendMessage('draw', {x: canvasX, y: canvasY, color: color});
     }
     if(isOwner) {
       this.totalPixels += 1;
