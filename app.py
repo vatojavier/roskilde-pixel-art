@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
 import time
 import uuid
@@ -7,10 +7,14 @@ from sqlalchemy.orm import sessionmaker
 from models import User
 from datetime import datetime
 from flask_cors import CORS
+import pandas as pd
+
 
 app = Flask(__name__)
+CORS(app)
 app.config["SECRET_KEY"] = "secret"
 socketio = SocketIO(app, cors_allowed_origins="*")
+
 
 grid_size = 50
 
@@ -24,10 +28,43 @@ def index():
     return render_template("index.html")
 
 
+
+@app.route("/api/get_msg")
+def get_msg():
+    # with engine.connect() as con:
+    #     df = pd.read_sql_query("SELECT * FROM canvas", con)
+    # return jsonify(df.to_dict(orient="records"))
+    data = {'message': 'Hello from the backend!'}
+    return jsonify(data)
+
+@app.route("/api/get_canvas")
+def get_canvas():
+    with engine.connect() as con:
+        df = pd.read_sql_query("SELECT color FROM canvas", con)
+    print(df.head())
+
+    # breakpoint()
+
+    # Send data to angular frontend
+    data = df["color"].tolist()
+
+    return jsonify(data)
+    
+
 @app.route("/canvas")
 def canvas():
 
     user_id = request.cookies.get("user_id")
+
+    
+    # measure time it takes to query the database
+    start = time.time()
+    with engine.connect() as con:
+        df = pd.read_sql_query("SELECT * FROM canvas", con)
+    end = time.time()
+
+    print(f"Query took {end - start} seconds")
+    print(df.head())
 
     if not user_id:
         # This is a new user, let's set a cookie

@@ -1,5 +1,9 @@
-import { Component, OnInit, ViewChild, ElementRef, } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgModule, } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { WebsocketService } from 'src/app/shared/services/websocket.service';
+import { AppComponent } from 'src/app/app.component';
+
 
 @Component({
   selector: 'app-main-canvas',
@@ -23,43 +27,93 @@ export class MainCanvasComponent implements OnInit {
   canvasWidth: number;
   canvasHeight: number;
 
-  constructor(private websocketService: WebsocketService) { }
+  msg: string = 'wassup';
+  canvasData: any[] = [];
+
+  constructor(
+    private http: HttpClient, // Error here
+    private websocketService: WebsocketService,
+  ) {
+
+  }
   @ViewChild('canvas', { static: true })
-  canvas: ElementRef<HTMLCanvasElement>;  
-  
+  canvas: ElementRef<HTMLCanvasElement>;
+
   private context: CanvasRenderingContext2D | null = null;
 
-
+  
 
   ngOnInit(): void {
+    
+    // Fetch msg from backend.
+    this.http.get('http://localhost:5000/api/get_msg').subscribe((data: any) => {
+      this.msg = data.message;
+      console.log(this.msg);
+    });
+
+
+    // Measure the time it takes to fetch the canvas data
+    const t0 = performance.now();
+    this.fetchCanvasData();
+    const t1 = performance.now();
+
+    console.log('Fetching canvas data took ' + (t1 - t0) + ' milliseconds.');
+
+
+
+
     this.websocketService.connect();
     console.log('Connected to websocket')
 
     this.websocketService.onMessage().subscribe((response) => {
-       console.log('onMessage response', response);
+      console.log('onMessage response', response);
     });
 
     this.websocketService.onDraw().subscribe((response: any) => {
       console.log('onDraw response', response);
       this.drawFromGrid(response.x, response.y, response.color);
-   });
+    });
+
+  }
+
+  fetchCanvasData(): void {
+    this.http.get<any[]>('http://localhost:5000/api/get_canvas').subscribe(
+      (data: any[]) => {
+
+        this.canvasData = data;
+        console.log('this.canvasData', this.canvasData);
+        this.fillTilesWithData();
+      },
+      (error) => {
+        console.error('Error fetching canvas data:', error);
+      }
+    );
+  }
+  fillTilesWithData() {
+    const canvasElement = this.canvas.nativeElement;
+    for (let i = 0; i < this.canvasData.length; i++) {
+      const x = i % this.tileNumberX;
+      const y = Math.floor(i / this.tileNumberX);
+      this.drawFromGrid(x, y, this.canvasData[i]);
+      // console.log('x, y, this.canvasData[i]', x, y, this.canvasData[i]);
+    }
   }
 
   ngAfterViewInit() {
-    const canvasElement = this.canvas.nativeElement 
+    const canvasElement = this.canvas.nativeElement
     this.context = canvasElement.getContext('2d');
     console.log('this.context', this.context)
 
     // canvasElement.addEventListener('click', this.handleCanvasClick.bind(this));
 
-    this.tileNumberX = 20;
-    this.tileNumberY = 10;
+    this.tileNumberX = 200;
+    this.tileNumberY = 100;
 
     this.canvasWidth = canvasElement.width;
     this.canvasHeight = canvasElement.height;
 
     // Check that the ratio makes squared tiles
-    if(this.canvasWidth / this.tileNumberX != this.canvasHeight / this.tileNumberY) {
+    if (this.canvasWidth / this.tileNumberX != this.canvasHeight / this.tileNumberY) {
       console.error('The ratio of the canvas width and height does not match the ratio of the tile numbers');
     }
 
@@ -71,13 +125,12 @@ export class MainCanvasComponent implements OnInit {
     this.tileSizeY = this.canvasHeight / this.tileNumberY;
 
     // Draw the grid
-    for(let i = 0; i < this.tileNumberX; i++) {
-      for(let j = 0; j < this.tileNumberY; j++) {
+    for (let i = 0; i < this.tileNumberX; i++) {
+      for (let j = 0; j < this.tileNumberY; j++) {
         this.context.strokeRect(i * this.tileSizeX, j * this.tileSizeY, this.tileSizeX, this.tileSizeY);
       }
     }
-
-
+    
     canvasElement.addEventListener('mousedown', this.handleMouseDown.bind(this));
     canvasElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
     canvasElement.addEventListener('mouseup', this.handleMouseUp.bind(this));
@@ -106,23 +159,23 @@ export class MainCanvasComponent implements OnInit {
     this.isDrawing = true;
     this.draw(event.clientX, event.clientY);
   }
-  
+
   handleMouseMove(event: MouseEvent): void {
     if (this.isDrawing) {
       this.draw(event.clientX, event.clientY);
     }
   }
-  
+
   handleMouseUp(): void {
     this.isDrawing = false;
   }
-  
+
   handleTouchStart(event: TouchEvent): void {
     this.isDrawing = true;
     const touch = event.touches[0];
     this.draw(touch.clientX, touch.clientY);
   }
-  
+
   handleTouchMove(event: TouchEvent): void {
     if (this.isDrawing) {
       event.preventDefault();
@@ -130,7 +183,7 @@ export class MainCanvasComponent implements OnInit {
       this.draw(touch.clientX, touch.clientY);
     }
   }
-  
+
   handleTouchEnd(): void {
     this.isDrawing = false;
   }
@@ -147,16 +200,16 @@ export class MainCanvasComponent implements OnInit {
   drawFromGrid(x: number, y: number, color: string): void {
     // Verify that the x and y are valid
     if (x < 0 || x >= this.tileNumberX || y < 0 || y >= this.tileNumberY) {
-        console.log('Invalid grid coordinates', x, y);
-        return;
+      console.log('Invalid grid coordinates', x, y);
+      return;
     }
     // Draw the pixel
     this.context.fillStyle = color;
     this.context.fillRect(x * this.tileSizeX, y * this.tileSizeY, this.tileSizeX, this.tileSizeY);
   }
 
-  draw(x: number, y: number, color: string = this.selectedPixelColor, emit: boolean = true, isOwner : boolean = true): void {
-    
+  draw(x: number, y: number, color: string = this.selectedPixelColor, emit: boolean = true, isOwner: boolean = true): void {
+
     const canvasElement = this.canvas.nativeElement;
     const rect = canvasElement.getBoundingClientRect();
 
@@ -166,16 +219,16 @@ export class MainCanvasComponent implements OnInit {
     // canvasX = x - rect.left;
     // canvasY = y - rect.top;
 
-    console.log('draw',x,y,canvasX,canvasY,color);
-    
+    console.log('draw', x, y, canvasX, canvasY, color);
+
     this.context.fillStyle = color;
 
     this.context.fillRect(canvasX * this.tileSizeX, canvasY * this.tileSizeY, this.tileSizeX, this.tileSizeY);
 
-    if (emit){
-      this.sendMessage('draw', {x: canvasX, y: canvasY, color: color});
+    if (emit) {
+      this.sendMessage('draw', { x: canvasX, y: canvasY, color: color });
     }
-    if(isOwner) {
+    if (isOwner) {
       this.totalPixels += 1;
     }
   }
