@@ -14,7 +14,7 @@ import { AppComponent } from 'src/app/app.component';
 export class MainCanvasComponent implements OnInit {
   gridSize: number;
   pixelSize: number;
-  selectedPixelColor: '#1aa8cb';
+  selectedPixelColor = '#1aa8cb';
   isDrawing = false;
   totalPixels = 0; // get this from cookie
 
@@ -71,7 +71,9 @@ export class MainCanvasComponent implements OnInit {
 
     this.websocketService.onDraw().subscribe((response: any) => {
       console.log('onDraw response', response);
-      this.drawFromGrid(response.x, response.y, response.color);
+      // this.drawFromGrid(response.x, response.y, response.color);
+
+      this.drawFromGridID(response.pixelID, response.color);
     });
 
   }
@@ -82,7 +84,7 @@ export class MainCanvasComponent implements OnInit {
 
         this.canvasData = data;
         console.log('this.canvasData', this.canvasData);
-        // this.fillTilesWithData();
+        this.fillTilesWithData();
       },
       (error) => {
         console.error('Error fetching canvas data:', error);
@@ -93,11 +95,26 @@ export class MainCanvasComponent implements OnInit {
     const canvasElement = this.canvas.nativeElement;
 
     for (let i = 0; i < this.canvasData.length; i++) {
-      const x = i % this.tileNumberX;
-      const y = Math.floor(i / this.tileNumberX);
-      this.drawFromGrid(x, y, this.canvasData[i]);
+      // const x = i % this.tileNumberX;
+      // const y = Math.floor(i / this.tileNumberX);
+      // this.drawFromGrid(x, y, this.canvasData[i]);
       // console.log('x, y, this.canvasData[i]', x, y, this.canvasData[i]);
+      this.drawFromGridID(i, this.canvasData[i]);
     }
+  }
+
+  drawFromGridID(id: number, color: string): void {
+    // Verify that the id is valid
+    if (id < 0 || id >= this.tileNumberX * this.tileNumberY) {
+      console.log('Invalid grid id', id);
+      return;
+    }
+    console.log('drawFromGridID', id, color);
+
+    // Draw the pixel
+    const x = id % this.tileNumberX;
+    const y = Math.floor(id / this.tileNumberX);
+    this.drawFromGrid(x, y, color);
   }
 
   ngAfterViewInit() {
@@ -142,8 +159,7 @@ export class MainCanvasComponent implements OnInit {
   }
 
   sendMessage(event: string, messageObject: any): void {
-    // console.log('sendMessage event messageObject', event, messageObject);
-
+    // this.websocketService.sendMessage(event, messageObject);
     this.websocketService.sendMessage(event, messageObject);
   }
 
@@ -214,8 +230,17 @@ export class MainCanvasComponent implements OnInit {
     const canvasElement = this.canvas.nativeElement;
     const rect = canvasElement.getBoundingClientRect();
 
-    let canvasX = Math.floor((x - rect.left) / this.tileSizeX);
-    let canvasY = Math.floor((y - rect.top) / this.tileSizeY);
+
+    let canvasPositionX = x - rect.left;
+    let canvasPositionY = y - rect.top;
+
+    // Avoid painting outside the canvas
+    if (canvasPositionX < 0 || canvasPositionX >= this.canvasWidth || canvasPositionY < 0 || canvasPositionY >= this.canvasHeight) {
+      return;
+    }
+
+    let canvasX = Math.floor(canvasPositionX / this.tileSizeX);
+    let canvasY = Math.floor(canvasPositionY / this.tileSizeY);
 
     let pixelID = canvasX + canvasY * this.tileNumberX;
     
@@ -223,16 +248,18 @@ export class MainCanvasComponent implements OnInit {
     // canvasX = x - rect.left;
     // canvasY = y - rect.top;
 
-    console.log('draw', x, y, canvasX, canvasY, color);
+    console.log('draw', x, y);
+    console.log('Canvas position', canvasPositionX, canvasPositionY);
 
-    this.context.fillStyle = color;
+    this.context.fillStyle = this.selectedPixelColor;
 
     this.context.fillRect(canvasX * this.tileSizeX, canvasY * this.tileSizeY, this.tileSizeX, this.tileSizeY);
     console.log('PixelID', pixelID);
+    console.log('Color', color);
 
     if (emit) {
       // this.sendMessage('draw', { x: canvasX, y: canvasY, color: color });
-      this.sendMessage('draw', { pixelID: pixelID, color: color });
+      this.sendMessage('draw', { pixelID: pixelID, color: this.selectedPixelColor });
     }
     if (isOwner) {
       this.totalPixels += 1;
