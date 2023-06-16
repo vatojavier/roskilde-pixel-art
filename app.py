@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
 import time
 import uuid
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, update, MetaData
 from sqlalchemy.orm import sessionmaker
 from models import User
 from datetime import datetime
@@ -18,10 +18,16 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 grid_size = 50
 
-
 engine = create_engine("postgresql://python:python1234@localhost/roskildepixels")
 Session = sessionmaker(bind=engine)
 session = Session()
+
+# Assuming you've already defined your engine
+metadata = MetaData()
+metadata.reflect(bind=engine)
+
+# Get your canvas table
+canvas_table = metadata.tables['canvas']
 
 @app.route("/")
 def index():
@@ -117,9 +123,20 @@ def handle_message(message):
 
 @socketio.on("draw")
 def handle_draw(data):
-    print(data)
+    print("Draw event received:", data)
+    # print(type(data))
+    print(data["pixelID"], data["color"])
+
+    # Insert data into database
+    with engine.connect() as con:
+        update_stmt = update(canvas_table).where(canvas_table.c.id == data['pixelID']).values(color=data['color'])
+        con.execute(update_stmt)
+
     emit("draw", data, broadcast=True)
 
 
 if __name__ == "__main__":
-    socketio.run(app)
+
+    # Run app for everyone on the network
+
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)

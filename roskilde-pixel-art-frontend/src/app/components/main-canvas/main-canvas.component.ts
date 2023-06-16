@@ -83,7 +83,7 @@ export class MainCanvasComponent implements OnInit {
       (data: any[]) => {
 
         this.canvasData = data;
-        console.log('this.canvasData', this.canvasData);
+        // console.log('this.canvasData', this.canvasData);
         this.fillTilesWithData();
       },
       (error) => {
@@ -109,7 +109,7 @@ export class MainCanvasComponent implements OnInit {
       console.log('Invalid grid id', id);
       return;
     }
-    console.log('drawFromGridID', id, color);
+    // console.log('drawFromGridID', id, color);
 
     // Draw the pixel
     const x = id % this.tileNumberX;
