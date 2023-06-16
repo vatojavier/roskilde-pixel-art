@@ -53,11 +53,11 @@ export class MainCanvasComponent implements OnInit {
 
 
     // Measure the time it takes to fetch the canvas data
-    const t0 = performance.now();
-    this.fetchCanvasData();
-    const t1 = performance.now();
+    // const t0 = performance.now();
+    // this.fetchCanvasData();
+    // const t1 = performance.now();
 
-    console.log('Fetching canvas data took ' + (t1 - t0) + ' milliseconds.');
+    // console.log('Fetching canvas data took ' + (t1 - t0) + ' milliseconds.');
 
 
 
@@ -66,7 +66,7 @@ export class MainCanvasComponent implements OnInit {
     console.log('Connected to websocket')
 
     this.websocketService.onMessage().subscribe((response) => {
-      console.log('onMessage response', response);
+      // console.log('onMessage response', response);
     });
 
     this.websocketService.onDraw().subscribe((response: any) => {
@@ -82,7 +82,7 @@ export class MainCanvasComponent implements OnInit {
 
         this.canvasData = data;
         console.log('this.canvasData', this.canvasData);
-        this.fillTilesWithData();
+        // this.fillTilesWithData();
       },
       (error) => {
         console.error('Error fetching canvas data:', error);
@@ -91,6 +91,7 @@ export class MainCanvasComponent implements OnInit {
   }
   fillTilesWithData() {
     const canvasElement = this.canvas.nativeElement;
+
     for (let i = 0; i < this.canvasData.length; i++) {
       const x = i % this.tileNumberX;
       const y = Math.floor(i / this.tileNumberX);
@@ -102,7 +103,7 @@ export class MainCanvasComponent implements OnInit {
   ngAfterViewInit() {
     const canvasElement = this.canvas.nativeElement
     this.context = canvasElement.getContext('2d');
-    console.log('this.context', this.context)
+    // console.log('this.context', this.context)
 
     // canvasElement.addEventListener('click', this.handleCanvasClick.bind(this));
 
@@ -125,11 +126,11 @@ export class MainCanvasComponent implements OnInit {
     this.tileSizeY = this.canvasHeight / this.tileNumberY;
 
     // Draw the grid
-    for (let i = 0; i < this.tileNumberX; i++) {
-      for (let j = 0; j < this.tileNumberY; j++) {
-        this.context.strokeRect(i * this.tileSizeX, j * this.tileSizeY, this.tileSizeX, this.tileSizeY);
-      }
-    }
+    // for (let i = 0; i < this.tileNumberX; i++) {
+    //   for (let j = 0; j < this.tileNumberY; j++) {
+    //     this.context.strokeRect(i * this.tileSizeX, j * this.tileSizeY, this.tileSizeX, this.tileSizeY);
+    //   }
+    // }
     
     canvasElement.addEventListener('mousedown', this.handleMouseDown.bind(this));
     canvasElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
@@ -141,7 +142,7 @@ export class MainCanvasComponent implements OnInit {
   }
 
   sendMessage(event: string, messageObject: any): void {
-    console.log('sendMessage event messageObject', event, messageObject);
+    // console.log('sendMessage event messageObject', event, messageObject);
 
     this.websocketService.sendMessage(event, messageObject);
   }
@@ -216,6 +217,9 @@ export class MainCanvasComponent implements OnInit {
     let canvasX = Math.floor((x - rect.left) / this.tileSizeX);
     let canvasY = Math.floor((y - rect.top) / this.tileSizeY);
 
+    let pixelID = canvasX + canvasY * this.tileNumberX;
+    
+
     // canvasX = x - rect.left;
     // canvasY = y - rect.top;
 
@@ -224,9 +228,11 @@ export class MainCanvasComponent implements OnInit {
     this.context.fillStyle = color;
 
     this.context.fillRect(canvasX * this.tileSizeX, canvasY * this.tileSizeY, this.tileSizeX, this.tileSizeY);
+    console.log('PixelID', pixelID);
 
     if (emit) {
-      this.sendMessage('draw', { x: canvasX, y: canvasY, color: color });
+      // this.sendMessage('draw', { x: canvasX, y: canvasY, color: color });
+      this.sendMessage('draw', { pixelID: pixelID, color: color });
     }
     if (isOwner) {
       this.totalPixels += 1;
