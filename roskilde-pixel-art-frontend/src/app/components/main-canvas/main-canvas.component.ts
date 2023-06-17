@@ -50,6 +50,12 @@ export class MainCanvasComponent implements OnInit {
       this.msg = data.message;
       console.log(this.msg);
     });
+    
+    // Set cookie and send it with the request
+    this.http.get('http://localhost:5000/api/get_cookie', { withCredentials: true }).subscribe((data: any) => {
+      console.log('Cookie:', data);
+    });
+    
 
 
     // Measure the time it takes to fetch the canvas data

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, make_response
 from flask_socketio import SocketIO, emit
 import time
 import uuid
@@ -11,7 +11,8 @@ import pandas as pd
 
 
 app = Flask(__name__)
-CORS(app)
+
+CORS(app, resources={r"/*": {"origins": "*", "supports_credentials": True}})
 app.config["SECRET_KEY"] = "secret"
 socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -29,19 +30,7 @@ metadata.reflect(bind=engine)
 # Get your canvas table
 canvas_table = metadata.tables['canvas']
 
-@app.route("/")
-def index():
-    return render_template("index.html")
 
-
-
-@app.route("/api/get_msg")
-def get_msg():
-    # with engine.connect() as con:
-    #     df = pd.read_sql_query("SELECT * FROM canvas", con)
-    # return jsonify(df.to_dict(orient="records"))
-    data = {'message': 'Hello from the backend!'}
-    return jsonify(data)
 
 @app.route("/api/get_canvas")
 def get_canvas():
@@ -56,6 +45,64 @@ def get_canvas():
 
     return jsonify(data)
     
+@app.route("/api/get_cookie")
+def get_cookie():
+    
+    user_id = request.cookies.get("user_id")
+
+    if not user_id:
+
+        user_id = str(uuid.uuid4())
+        print("New user, setting cookie")
+
+        new_user = User(user_id=user_id, pixels_left=10)  # Set your default pixel count here
+        session.add(new_user)
+
+        # Set a cookie that expires in 1 month
+        expires = int(time.time()) + 60 * 60 * 24 * 30
+
+        response = make_response({"message": "Cookie set"})
+        response.set_cookie("user_id", user_id, expires=expires, secure=True, httponly=True)
+        return response
+    else:
+        cookie = request.cookies.get("user_id")
+        print(f"Returning user with cookie: {cookie}")
+
+        # Update User's last_seen_at
+        user = session.query(User).filter_by(user_id=user_id).first()
+
+        # if for some reason the user doesn't exist, create a new one
+        if not user:
+            new_user = User(user_id=user_id, pixels_left=10)
+            session.add(new_user)
+        else:
+            user.last_seen_at = datetime.utcnow()
+    
+    # Commit changes and close the session
+    session.commit()
+    session.close()
+
+    # print(f"Returning user with cookie: {user_id}"
+    return jsonify({"message": "Cookie already set"})
+
+
+
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+
+@app.route("/api/get_msg")
+def get_msg():
+    # with engine.connect() as con:
+    #     df = pd.read_sql_query("SELECT * FROM canvas", con)
+    # return jsonify(df.to_dict(orient="records"))
+    data = {'message': 'Hello from the backend!'}
+    return jsonify(data)
+
+
 
 @app.route("/canvas")
 def canvas():
@@ -110,9 +157,9 @@ def canvas():
     return response
 
 
-@socketio.on("connect")
-def handle_connect():
-    print("User connected")
+# @socketio.on("connect")
+# def handle_connect():
+#     print("User connected")
 
 
 @socketio.on("message")
@@ -139,4 +186,4 @@ if __name__ == "__main__":
 
     # Run app for everyone on the network
 
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    socketio.run(app, debug=False)
