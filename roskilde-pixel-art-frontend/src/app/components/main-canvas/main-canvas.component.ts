@@ -30,6 +30,9 @@ export class MainCanvasComponent implements OnInit {
   msg: string = 'wassup';
   canvasData: any[] = [];
 
+  // User id as string
+  userID: string = '';
+
   constructor(
     private http: HttpClient, // Error here
     private websocketService: WebsocketService,
@@ -54,7 +57,13 @@ export class MainCanvasComponent implements OnInit {
     // Set cookie and send it with the request
     this.http.get('http://localhost:5000/api/get_cookie', { withCredentials: true }).subscribe((data: any) => {
       console.log('Cookie:', data);
+
+      // Read the cookie here, after the server has set it
+      this.userID = document.cookie.replace(/(?:(?:^|.*;\s*)user_id\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+      console.log('UserID:', this.userID);
     });
+
+    // this.userID = document.cookie.replace(/(?:(?:^|.*;\s*)user_id\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 
 
     // Measure the time it takes to fetch the canvas data
@@ -138,6 +147,7 @@ export class MainCanvasComponent implements OnInit {
 
     this.tileNumberX = 200;
     this.tileNumberY = 100;
+    
 
     this.canvasWidth = canvasElement.width;
     this.canvasHeight = canvasElement.height;
@@ -271,7 +281,7 @@ export class MainCanvasComponent implements OnInit {
 
     if (emit) {
       // this.sendMessage('draw', { x: canvasX, y: canvasY, color: color });
-      this.sendMessage('draw', { pixelID: pixelID, color: this.selectedPixelColor });
+      this.sendMessage('draw', { pixelID: pixelID, color: this.selectedPixelColor, userID: this.userID });
     }
     if (isOwner) {
       this.totalPixels += 1;

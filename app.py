@@ -32,20 +32,20 @@ metadata.reflect(bind=engine)
 canvas_table = metadata.tables["canvas"]
 
 with engine.connect() as con:
-    df = pd.read_sql_query("SELECT color FROM canvas", con)
+    df = pd.read_sql_query("SELECT color FROM canvas order by id asc", con)
 print(df.head())
-
+# breakpoint()
 
 # canvas_array = np.array([0xE5E8E8] * 20000)
 
 # Set the color of the canvas to the dataframe, in hexadecimal
 canvas_array = df["color"].to_numpy()
 print(canvas_array)
-# breakpoint()
+
+session.close()
 
 @app.route("/api/get_canvas")
 def get_canvas():
-
     # Convert number to hexadeciaml color code with the leading #
     data = [f"#{hex(color)[2:].zfill(6)}" for color in canvas_array]
 
@@ -55,6 +55,7 @@ def get_canvas():
 @app.route("/api/get_cookie")
 def get_cookie():
     user_id = request.cookies.get("user_id")
+    session = Session()
 
     if not user_id:
         user_id = str(uuid.uuid4())
@@ -112,6 +113,7 @@ def index():
 @app.route("/canvas")
 def canvas():
     user_id = request.cookies.get("user_id")
+    session = Session()
 
     # measure time it takes to query the database
     start = time.time()
@@ -175,18 +177,35 @@ def handle_message(message):
 
 @socketio.on("draw")
 def handle_draw(data):
-    # print("Draw event received:", data)
-    # # print(type(data))
-    # print(data["pixelID"], data["color"])
+    
+    user_id = data["userID"]
+    print(f"User {user_id} drew a pixel")
 
-    # # Insert data into database
-    # with engine.connect() as con:
-    #     update_stmt = (
-    #         update(canvas_table)
-    #         .where(canvas_table.c.id == data["pixelID"])
-    #         .values(color=data["color"])
-    #     )
-    #     con.execute(update_stmt)
+    color_int = int(data["color"][1:], 16)
+    previous_color = canvas_array[data["pixelID"]]
+    canvas_array[data["pixelID"]] = color_int
+
+    session = Session()
+
+    user = session.query(User).filter_by(user_id=user_id).first()
+    pixels_left = user.pixels_left
+    
+    print(f"User {user_id} has {pixels_left} pixels left")
+
+    try:
+        session.execute(
+            update(canvas_table)
+            .where(canvas_table.c.id == data["pixelID"])
+            .values(color=color_int)
+        )
+        session.commit()
+    except Exception as e:
+        print(e)
+        session.rollback()
+        canvas_array[data["pixelID"]] = previous_color
+    finally:
+        session.close()
+    
 
     emit("draw", data, broadcast=True)
 
