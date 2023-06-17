@@ -2,6 +2,9 @@
 <div>
     <input type="color" id="head" name="head"  [(ngModel)]="selectedPixelColor">
 </div>
-<canvas #canvas width="1000" height="500"></canvas>
+selectedCoordinates: {{selectedCoordinates}}
+<div id="container">
+<canvas #canvas id="canvas" width="1000" height="500"></canvas>
+</div>
 <div>Total Pixel Count:{{totalPixels}}</div>
 <button (click)="sendMessage('message','hello!')">send message</button>
