@@ -55,15 +55,14 @@ export class MainCanvasComponent implements OnInit {
     this.http.get('http://localhost:5000/api/get_cookie', { withCredentials: true }).subscribe((data: any) => {
       console.log('Cookie:', data);
     });
-    
 
 
     // Measure the time it takes to fetch the canvas data
-    // const t0 = performance.now();
-    // this.fetchCanvasData();
-    // const t1 = performance.now();
+    const t0 = performance.now();
+    this.fetchCanvasData();
+    const t1 = performance.now();
 
-    // console.log('Fetching canvas data took ' + (t1 - t0) + ' milliseconds.');
+    console.log('Fetching canvas data took ' + (t1 - t0) + ' milliseconds.');
 
 
 
@@ -105,7 +104,14 @@ export class MainCanvasComponent implements OnInit {
       // const y = Math.floor(i / this.tileNumberX);
       // this.drawFromGrid(x, y, this.canvasData[i]);
       // console.log('x, y, this.canvasData[i]', x, y, this.canvasData[i]);
-      this.drawFromGridID(i, this.canvasData[i]);
+
+      // Convert hexadecimal number to hex color string with the # prefix
+      const color = this.canvasData[i].toString(16).padStart(6, '0');
+
+
+      // console.log('color', color);
+
+      this.drawFromGridID(i, color);
     }
   }
 

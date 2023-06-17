@@ -8,6 +8,7 @@ from models import User
 from datetime import datetime
 from flask_cors import CORS
 import pandas as pd
+import numpy as np
 
 
 app = Flask(__name__)
@@ -28,41 +29,49 @@ metadata = MetaData()
 metadata.reflect(bind=engine)
 
 # Get your canvas table
-canvas_table = metadata.tables['canvas']
+canvas_table = metadata.tables["canvas"]
+
+with engine.connect() as con:
+    df = pd.read_sql_query("SELECT color FROM canvas", con)
+print(df.head())
 
 
+# canvas_array = np.array([0xE5E8E8] * 20000)
+
+# Set the color of the canvas to the dataframe, in hexadecimal
+canvas_array = df["color"].to_numpy()
+print(canvas_array)
+# breakpoint()
 
 @app.route("/api/get_canvas")
 def get_canvas():
-    with engine.connect() as con:
-        df = pd.read_sql_query("SELECT color FROM canvas", con)
-    print(df.head())
 
-    # breakpoint()
-
-    # Send data to angular frontend
-    data = df["color"].tolist()
+    # Convert number to hexadeciaml color code with the leading #
+    data = [f"#{hex(color)[2:].zfill(6)}" for color in canvas_array]
 
     return jsonify(data)
-    
+
+
 @app.route("/api/get_cookie")
 def get_cookie():
-    
     user_id = request.cookies.get("user_id")
 
     if not user_id:
-
         user_id = str(uuid.uuid4())
         print("New user, setting cookie")
 
-        new_user = User(user_id=user_id, pixels_left=10)  # Set your default pixel count here
+        new_user = User(
+            user_id=user_id, pixels_left=10
+        )  # Set your default pixel count here
         session.add(new_user)
 
         # Set a cookie that expires in 1 month
         expires = int(time.time()) + 60 * 60 * 24 * 30
 
         response = make_response({"message": "Cookie set"})
-        response.set_cookie("user_id", user_id, expires=expires, secure=True, httponly=True)
+        response.set_cookie(
+            "user_id", user_id, expires=expires, secure=True, httponly=True
+        )
         return response
     else:
         cookie = request.cookies.get("user_id")
@@ -77,7 +86,7 @@ def get_cookie():
             session.add(new_user)
         else:
             user.last_seen_at = datetime.utcnow()
-    
+
     # Commit changes and close the session
     session.commit()
     session.close()
@@ -86,6 +95,13 @@ def get_cookie():
     return jsonify({"message": "Cookie already set"})
 
 
+@app.route("/api/get_msg")
+def get_msg():
+    # with engine.connect() as con:
+    #     df = pd.read_sql_query("SELECT * FROM canvas", con)
+    # return jsonify(df.to_dict(orient="records"))
+    data = {"message": "Hello from the backend!"}
+    return jsonify(data)
 
 
 @app.route("/")
@@ -93,23 +109,10 @@ def index():
     return render_template("index.html")
 
 
-
-@app.route("/api/get_msg")
-def get_msg():
-    # with engine.connect() as con:
-    #     df = pd.read_sql_query("SELECT * FROM canvas", con)
-    # return jsonify(df.to_dict(orient="records"))
-    data = {'message': 'Hello from the backend!'}
-    return jsonify(data)
-
-
-
 @app.route("/canvas")
 def canvas():
-
     user_id = request.cookies.get("user_id")
 
-    
     # measure time it takes to query the database
     start = time.time()
     with engine.connect() as con:
@@ -124,7 +127,9 @@ def canvas():
         user_id = str(uuid.uuid4())
         print("New user, setting cookie")
 
-        new_user = User(user_id=user_id, pixels_left=10)  # Set your default pixel count here
+        new_user = User(
+            user_id=user_id, pixels_left=10
+        )  # Set your default pixel count here
         session.add(new_user)
 
         # Set a cookie that expires in 1 year
@@ -170,20 +175,23 @@ def handle_message(message):
 
 @socketio.on("draw")
 def handle_draw(data):
-    print("Draw event received:", data)
-    # print(type(data))
-    print(data["pixelID"], data["color"])
+    # print("Draw event received:", data)
+    # # print(type(data))
+    # print(data["pixelID"], data["color"])
 
-    # Insert data into database
-    with engine.connect() as con:
-        update_stmt = update(canvas_table).where(canvas_table.c.id == data['pixelID']).values(color=data['color'])
-        con.execute(update_stmt)
+    # # Insert data into database
+    # with engine.connect() as con:
+    #     update_stmt = (
+    #         update(canvas_table)
+    #         .where(canvas_table.c.id == data["pixelID"])
+    #         .values(color=data["color"])
+    #     )
+    #     con.execute(update_stmt)
 
     emit("draw", data, broadcast=True)
 
 
 if __name__ == "__main__":
-
     # Run app for everyone on the network
 
     socketio.run(app, debug=False)
