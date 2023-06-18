@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  websocketUrl: 'http://localhost:5000/'
+  websocketUrl: 'https://40ea-94-18-184-65.ngrok-free.app/'
 };
 
 /*

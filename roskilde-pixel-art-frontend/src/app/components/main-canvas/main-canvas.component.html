@@ -2,7 +2,14 @@
 <div>
     <input type="color" id="head" name="head"  [(ngModel)]="selectedPixelColor">
 </div>
-selectedCoordinates: {{selectedCoordinates}}
+rect: {{rectCoordinates}}<br>
+unscaledCoordinates: {{unscaledCoordinates}}<br>
+drawableCoordinates: {{drawableCoordinates}}<br>
+finalCoordinates: {{finalCoordinates}}<br>
+pixelID: {{pixelID}}<br>
+
+
+
 <div id="container">
 <canvas #canvas id="canvas" width="1000" height="500"></canvas>
 </div>
