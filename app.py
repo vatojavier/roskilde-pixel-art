@@ -81,7 +81,7 @@ def handle_message(message):
 @socketio.on("draw")
 def handle_draw(data):
     print(data)
-    emit("draw", data, broadcast=True)
+    emit("draw", data, broadcast=True, include_self=False)
 
 
 if __name__ == "__main__":

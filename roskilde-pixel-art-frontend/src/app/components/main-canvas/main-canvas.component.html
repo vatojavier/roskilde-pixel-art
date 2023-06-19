@@ -1,3 +1,9 @@
+<div style="background-image: url('../../assets/images/musician pixel art background 1928x1072.png');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            min-width: 1000px;">
 <p>main-canvas works!</p>
 <div>
     <input type="color" id="head" name="head"  [(ngModel)]="selectedPixelColor">
@@ -10,8 +16,9 @@ pixelID: {{pixelID}}<br>
 
 
 
-<div id="container">
+<div id="container" style="display: flex; justify-content: center; align-items: center;">
 <canvas #canvas id="canvas" width="1000" height="500"></canvas>
 </div>
 <div>Total Pixel Count:{{totalPixels}}</div>
 <button (click)="sendMessage('message','hello!')">send message</button>
+</div>

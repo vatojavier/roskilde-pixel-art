@@ -42,6 +42,8 @@ export class MainCanvasComponent implements OnInit {
   ngAfterViewInit() {
     const canvasElement = this.canvas.nativeElement
     this.context = canvasElement.getContext('2d');
+    // this.context.fillStyle = "white";
+    this.context.fillRect(0, 0, canvasElement.width, canvasElement.height);
     console.log('this.context', this.context)
 
     this.gridSize = 50;
