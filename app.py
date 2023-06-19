@@ -206,11 +206,6 @@ def handle_message(message):
 
 @socketio.on("draw")
 def handle_draw(data):
-<<<<<<< HEAD
-    print(data)
-    emit("draw", data, broadcast=True, include_self=False)
-=======
-    
     user_id = data["userID"]
 
     color_int = int(data["color"][1:], 16)
@@ -249,7 +244,6 @@ def handle_draw(data):
         session.close()
     
     emit("draw", data, broadcast=True)
->>>>>>> a79c766a50237f831fd16749c847d9818954a3af
 
 
 if __name__ == "__main__":

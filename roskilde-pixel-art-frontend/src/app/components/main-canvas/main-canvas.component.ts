@@ -89,7 +89,7 @@ export class MainCanvasComponent implements OnInit {
     });
 
     this.websocketService.onDraw().subscribe((response: any) => {
-      // console.log('onDraw response', response);
+      console.log('onDraw response', response); 
       // this.drawFromGrid(response.x, response.y, response.color);
 
       this.drawFromGridID(response.pixelID, response.color);
@@ -337,6 +337,7 @@ export class MainCanvasComponent implements OnInit {
     );
     if (emit) {
       // this.sendMessage('draw', { x: canvasX, y: canvasY, color: color });
+      console.log("Drawing")
       this.sendMessage('draw', { pixelID: this.pixelID, color: this.selectedPixelColor, userID: this.userID });
     }
     if  (isOwner) {
