@@ -13,3 +13,12 @@ class User(Base):
     last_seen_at = Column(DateTime, default=datetime.datetime.utcnow)
     pixels_left = Column(Integer)
     last_pixel_placed_at = Column(DateTime)
+
+class CanvasHistory(Base):
+    __tablename__ = 'canvas_history'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(UUID(as_uuid=True))
+    tile_id = Column(Integer)
+    color = Column(Integer)
+    placed_at = Column(DateTime, default=datetime.datetime.utcnow)

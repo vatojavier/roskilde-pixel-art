@@ -24,4 +24,8 @@ export class WebsocketService {
   onDraw() {
     return this.socket.fromEvent('draw').pipe(map((data) => data));
   }
+
+  onUpdate() {
+    return this.socket.fromEvent('update').pipe(map((data) => data));
+  }
 }
