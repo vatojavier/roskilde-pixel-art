@@ -17,7 +17,7 @@ pixelID: {{pixelID}}<br>
 
 
 <div id="container" style="display: flex; justify-content: center; align-items: center;">
-<canvas #canvas id="canvas" width="1000" height="500"></canvas>
+<canvas #canvas id="canvas" [width]="canvasWidth" [height]="canvasHeight" ></canvas>
 </div>
 <div>Total Pixel Count:{{totalPixels}}</div>
 <button (click)="sendMessage('message','hello!')">send message</button>

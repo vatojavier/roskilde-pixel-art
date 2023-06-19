@@ -113,12 +113,23 @@ def get_cookie():
     return jsonify({"user_id": user_id})
 
 
-@app.route("/api/get_msg")
+@app.route("/api/get_canvas_size")
 def get_msg():
-    # with engine.connect() as con:
-    #     df = pd.read_sql_query("SELECT * FROM canvas", con)
-    # return jsonify(df.to_dict(orient="records"))
-    data = {"message": "Hello from the backend!"}
+    print("Getting canvas size")
+    n_tiles_x = int(os.environ.get("N_TILES_X"))
+    n_tiles_y = int(os.environ.get("N_TILES_Y"))
+
+    canvas_width = int(os.environ.get("CANVAS_WIDTH"))
+    canvas_height = int(os.environ.get("CANVAS_HEIGHT"))
+
+    data = {
+        "n_tiles_x": n_tiles_x,
+        "n_tiles_y": n_tiles_y,
+        "canvas_width": canvas_width,
+        "canvas_height": canvas_height,
+    }
+
+    # data = {"message": "Hello from the backend!"}
     return jsonify(data)
 
 
