@@ -76,15 +76,20 @@ export class MainCanvasComponent implements OnInit {
     this.websocketService.connect();
 
     this.websocketService.onMessage().subscribe((response) => {
-      // console.log('onMessage response', response);
+      console.log('onMessage response', response);
     });
 
     this.websocketService.onDraw().subscribe((response: any) => {
-      console.log('onDraw response', response);
+      // console.log('onDraw response', response);
       // this.drawFromGrid(response.x, response.y, response.color);
 
       this.drawFromGridID(response.pixelID, response.color);
     });
+
+    this.websocketService.onUpdate().subscribe((response: any) => {
+      console.log('onUpdate response', response);
+    }
+    );
 
   }
 
@@ -154,7 +159,7 @@ export class MainCanvasComponent implements OnInit {
     }
 
     // this.gridSize = 50;
-    this.pixelSize = canvasElement.width / this.gridSize;
+    // this.pixelSize = canvasElement.width / this.gridSize;
 
     // Calculate the size of each tile
     this.tileSizeX = this.canvasWidth / this.tileNumberX;
@@ -244,6 +249,8 @@ export class MainCanvasComponent implements OnInit {
   }
 
   draw(x: number, y: number, color: string = this.selectedPixelColor, emit: boolean = true, isOwner: boolean = true): void {
+
+    console.log('draw', x, y);
 
     const canvasElement = this.canvas.nativeElement;
     const rect = canvasElement.getBoundingClientRect();

@@ -9,7 +9,13 @@ from datetime import datetime
 from flask_cors import CORS
 import pandas as pd
 import numpy as np
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
+pg_user = os.getenv("PG_USER")
+pg_password = os.getenv("PG_PASSWORD")
+pg_host = os.getenv("PG_HOST")
 
 app = Flask(__name__)
 
@@ -20,7 +26,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 grid_size = 50
 
-engine = create_engine("postgresql://python:python1234@localhost/roskildepixels")
+engine = create_engine(f"postgresql://{pg_user}:{pg_password}@{pg_host}/roskildepixels")
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -31,18 +37,27 @@ metadata.reflect(bind=engine)
 canvas_table = metadata.tables["canvas"]
 canvas_history_table = metadata.tables["canvas_history"]
 
-with engine.connect() as con:
-    df = pd.read_sql_query("SELECT color FROM canvas order by id asc", con)
-print(df.head())
-# breakpoint()
 
-# canvas_array = np.array([0xE5E8E8] * 20000)
+def load_canvas_from_db():
 
-# Set the color of the canvas to the dataframe, in hexadecimal
-canvas_array = df["color"].to_numpy()
-print(canvas_array)
+    global canvas_array
 
-session.close()
+    with engine.connect() as con:
+        df = pd.read_sql_query("SELECT color FROM canvas order by id asc", con)
+    # print(df.head())
+    # breakpoint()
+
+    # canvas_array = np.array([0xE5E8E8] * 20000)
+
+    # Set the color of the canvas to the dataframe, in hexadecimal
+    canvas_array = df["color"].to_numpy()
+    # print(canvas_array)
+
+    session.close()
+
+
+load_canvas_from_db()
+
 
 @app.route("/api/get_canvas")
 def get_canvas():
@@ -166,6 +181,15 @@ def canvas():
     return response
 
 
+@app.route("/trigger")
+def trigger():
+
+    load_canvas_from_db()
+
+    # Trigger a canvas update
+    socketio.emit("update", {"data": "Update triggered!"})
+    return "Triggered!"
+
 # @socketio.on("connect")
 # def handle_connect():
 #     # print("User connected")
@@ -220,7 +244,6 @@ def handle_draw(data):
     finally:
         session.close()
     
-
     emit("draw", data, broadcast=True)
 
 

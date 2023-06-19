@@ -1,10 +1,13 @@
 from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String
 from sqlalchemy.orm import sessionmaker
 from random import randint
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+import requests
 
 load_dotenv()
+
+color = 0xE5E8E8
 
 pg_user = os.getenv("PG_USER")
 pg_password = os.getenv("PG_PASSWORD")
@@ -26,14 +29,10 @@ canvas = Table('canvas', metadata,
 
 metadata.create_all(engine) # Ensures table creation if not existing yet
 
-for i in range(20000):
-    # Generate random tile and color, in hex and convert to int
-    color = 0xE5E8E8
-    
-    # Insert into the database
-    query = canvas.insert().values(id=i, color=color)
-    session.execute(query)
-
-# commit the transaction
+session.query(canvas).update({canvas.c.color: color})
 session.commit()
+
 session.close()
+
+# Send a request to the frontend to reset the canvas
+requests.get("http://localhost:5000/trigger")
