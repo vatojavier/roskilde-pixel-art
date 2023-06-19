@@ -4,7 +4,7 @@ import time
 import uuid
 from sqlalchemy import create_engine, update, MetaData
 from sqlalchemy.orm import sessionmaker
-from models import User
+from models import User, CanvasHistory
 from datetime import datetime
 from flask_cors import CORS
 import pandas as pd
@@ -24,12 +24,12 @@ engine = create_engine("postgresql://python:python1234@localhost/roskildepixels"
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# Assuming you've already defined your engine
 metadata = MetaData()
 metadata.reflect(bind=engine)
 
-# Get your canvas table
+# Get your canvas tables
 canvas_table = metadata.tables["canvas"]
+canvas_history_table = metadata.tables["canvas_history"]
 
 with engine.connect() as con:
     df = pd.read_sql_query("SELECT color FROM canvas order by id asc", con)
@@ -202,6 +202,15 @@ def handle_draw(data):
             .where(canvas_table.c.id == data["pixelID"])
             .values(color=color_int)
         )
+
+        # add row to canvas_history
+        new_history = CanvasHistory(
+            user_id=user_id,
+            tile_id=data["pixelID"],
+            color=color_int,
+        )
+        session.add(new_history)
+
         session.commit()
     except Exception as e:
         print(e)
