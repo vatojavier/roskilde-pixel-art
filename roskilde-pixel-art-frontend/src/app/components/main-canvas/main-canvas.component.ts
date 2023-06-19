@@ -57,10 +57,9 @@ export class MainCanvasComponent implements OnInit {
     // Set cookie and send it with the request
     this.http.get('http://localhost:5000/api/get_cookie', { withCredentials: true }).subscribe((data: any) => {
       console.log('Cookie:', data);
-
-      // Read the cookie here, after the server has set it
-      this.userID = document.cookie.replace(/(?:(?:^|.*;\s*)user_id\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+      this.userID = data.user_id;
       console.log('UserID:', this.userID);
+
     });
 
     // this.userID = document.cookie.replace(/(?:(?:^|.*;\s*)user_id\s*\=\s*([^;]*).*$)|^.*$/, "$1");
@@ -74,10 +73,7 @@ export class MainCanvasComponent implements OnInit {
     console.log('Fetching canvas data took ' + (t1 - t0) + ' milliseconds.');
 
 
-
-
     this.websocketService.connect();
-    console.log('Connected to websocket')
 
     this.websocketService.onMessage().subscribe((response) => {
       // console.log('onMessage response', response);

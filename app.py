@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, make_response
+from flask import Flask, render_template, request, jsonify, make_response, session as flask_session
 from flask_socketio import SocketIO, emit
 import time
 import uuid
@@ -63,16 +63,19 @@ def get_cookie():
 
         new_user = User(
             user_id=user_id, pixels_left=10
-        )  # Set your default pixel count here
+        )
         session.add(new_user)
 
         # Set a cookie that expires in 1 month
         expires = int(time.time()) + 60 * 60 * 24 * 30
 
-        response = make_response({"message": "Cookie set"})
+        response = make_response({"user_id": user_id})
         response.set_cookie(
-            "user_id", user_id, expires=expires, secure=True, httponly=True
+            "user_id", user_id, expires=expires, secure=True, httponly=True, #samesite="None"
         )
+        session.commit()
+        session.close() 
+
         return response
     else:
         cookie = request.cookies.get("user_id")
@@ -92,8 +95,7 @@ def get_cookie():
     session.commit()
     session.close()
 
-    # print(f"Returning user with cookie: {user_id}"
-    return jsonify({"message": "Cookie already set"})
+    return jsonify({"user_id": user_id})
 
 
 @app.route("/api/get_msg")
@@ -166,7 +168,10 @@ def canvas():
 
 # @socketio.on("connect")
 # def handle_connect():
-#     print("User connected")
+#     # print("User connected")
+#     cookie = request.cookies.get("user_id")
+#     flask_session["user_id"] = cookie
+#     print(f"User connected with cookie: {cookie}")
 
 
 @socketio.on("message")
@@ -179,7 +184,6 @@ def handle_message(message):
 def handle_draw(data):
     
     user_id = data["userID"]
-    print(f"User {user_id} drew a pixel")
 
     color_int = int(data["color"][1:], 16)
     previous_color = canvas_array[data["pixelID"]]
@@ -188,8 +192,8 @@ def handle_draw(data):
     session = Session()
 
     user = session.query(User).filter_by(user_id=user_id).first()
+
     pixels_left = user.pixels_left
-    
     print(f"User {user_id} has {pixels_left} pixels left")
 
     try:
@@ -203,6 +207,7 @@ def handle_draw(data):
         print(e)
         session.rollback()
         canvas_array[data["pixelID"]] = previous_color
+        # Maybe emit the original color back to the user and error message?
     finally:
         session.close()
     
