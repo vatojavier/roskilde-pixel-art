@@ -19,9 +19,6 @@ export class MainCanvasComponent implements OnInit {
   isDrawing = false;
   totalPixels = 0; // get this from cookie
 
-  // Canvas dimensions, this should be fetched from the backend but for now it's hardcoded
-  selectedCanvasSize = 'large';
-
   tileNumberX: number = 300;
   tileNumberY: number = 150;
 
