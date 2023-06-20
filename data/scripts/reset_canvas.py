@@ -7,7 +7,7 @@ import requests
 
 load_dotenv()
 
-color = 0xE5E8E8
+color = 0xffffff
 
 pg_user = os.getenv("PG_USER")
 pg_password = os.getenv("PG_PASSWORD")
@@ -35,4 +35,4 @@ session.commit()
 session.close()
 
 # Send a request to the frontend to reset the canvas
-requests.get("http://localhost:5000/trigger")
+# requests.get("http://localhost:5000/trigger")

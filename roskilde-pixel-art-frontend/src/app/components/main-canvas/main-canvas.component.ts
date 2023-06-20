@@ -3,6 +3,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { WebsocketService } from 'src/app/shared/services/websocket.service';
 import { AppComponent } from 'src/app/app.component';
+import { sizes } from './canvas-sizes';
 
 
 @Component({
@@ -19,10 +20,13 @@ export class MainCanvasComponent implements OnInit {
   totalPixels = 0; // get this from cookie
 
   // Canvas dimensions, this should be fetched from the backend but for now it's hardcoded
-  tileNumberX: number = 200;
-  tileNumberY: number = 100;
-  canvasWidth: number = 1000;
-  canvasHeight: number = 500;
+  selectedCanvasSize = 'large';
+
+  tileNumberX: number = 300;
+  tileNumberY: number = 150;
+
+  canvasWidth: number = 1200;
+  canvasHeight: number = 600;
 
   tileSizeX: number;
   tileSizeY: number;
@@ -59,31 +63,39 @@ export class MainCanvasComponent implements OnInit {
 
   ngOnInit(): void {
     
+
+    const selectedSize = sizes['large'];
+    this.tileNumberX = selectedSize.tileNumberX;
+    this.tileNumberY = selectedSize.tileNumberY;
+
+    this.canvasWidth = selectedSize.canvasWidth;
+    this.canvasHeight = selectedSize.canvasHeight;
+
     // Set cookie and send it with the request
     this.http.get('http://localhost:5000/api/get_cookie', { withCredentials: true }).subscribe((data: any) => {
-      console.log('Cookie:', data);
+      // console.log('Cookie:', data);
       this.userID = data.user_id;
-      console.log('UserID:', this.userID);
+      // console.log('UserID:', this.userID);
 
     });
 
-    // Fetch msg from backend.
-    this.http.get('http://localhost:5000/api/get_canvas_size').subscribe((data: any) => {
+    // // Fetch msg from backend.
+    // this.http.get('http://localhost:5000/api/get_canvas_size').subscribe((data: any) => {
 
-      console.log('Canvas size:', data);
+    //   console.log('Canvas size:', data);
 
-      this.tileNumberX = data.n_tiles_x;
-      this.tileNumberY = data.n_tiles_y;
+    //   this.tileNumberX = data.n_tiles_x;
+    //   this.tileNumberY = data.n_tiles_y;
 
-      this.canvasWidth = data.canvas_width;
-      this.canvasHeight = data.canvas_height;
+    //   this.canvasWidth = data.canvas_width;
+    //   this.canvasHeight = data.canvas_height;
 
-      console.log('this.tileNumberX', this.tileNumberX);
-      console.log('this.tileNumberY', this.tileNumberY);
+    //   console.log('this.tileNumberX', this.tileNumberX);
+    //   console.log('this.tileNumberY', this.tileNumberY);
 
-      console.log('this.canvasWidth', this.canvasWidth);
-      console.log('this.canvasHeight', this.canvasHeight);
-    });
+    //   console.log('this.canvasWidth', this.canvasWidth);
+    //   console.log('this.canvasHeight', this.canvasHeight);
+    // });
 
     const t0 = performance.now();
     this.fetchCanvasData();
@@ -126,6 +138,8 @@ export class MainCanvasComponent implements OnInit {
 
   fillTilesWithData() {
     const canvasElement = this.canvas.nativeElement;
+
+    console.log('Fetched data of size', this.canvasData.length);
 
     for (let i = 0; i < this.canvasData.length; i++) {
       const color = this.canvasData[i].toString(16).padStart(6, '0');
@@ -171,6 +185,11 @@ export class MainCanvasComponent implements OnInit {
 
     this.tileSizeX = this.canvasWidth / this.tileNumberX;
     this.tileSizeY = this.canvasHeight / this.tileNumberY;
+
+
+
+    console.log('this.tileSizeX', this.tileSizeX);
+    console.log('this.tileSizeY', this.tileSizeY);
 
     
     canvasElement.addEventListener('mousedown', this.handleMouseDown.bind(this));
@@ -274,12 +293,12 @@ export class MainCanvasComponent implements OnInit {
 
     const canvasElement = this.canvas.nativeElement;
     const rect = canvasElement.getBoundingClientRect();
-    console.log('rect.left rect.top', rect.left, rect.top)
+    // console.log('rect.left rect.top', rect.left, rect.top)
     this.rectCoordinates = "" + rect.left + " ||" + rect.top
-    console.log('unscaled coordinates', x, y)
+    // console.log('unscaled coordinates', x, y)
     this.unscaledCoordinates = "x:" + x + " y:" + y
 
-    console.log('drawable coordinates', x - rect.left, y - rect.top)
+    // console.log('drawable coordinates', x - rect.left, y - rect.top)
 
 
     let canvasPositionX = x - rect.left;
@@ -317,6 +336,7 @@ export class MainCanvasComponent implements OnInit {
     if (emit) {
       // this.sendMessage('draw', { x: canvasX, y: canvasY, color: color });
       // console.log("Drawing")
+      console.log('PixelID', this.pixelID);
       this.sendMessage('draw', { pixelID: this.pixelID, color: this.selectedPixelColor, userID: this.userID });
     }
     if  (isOwner) {

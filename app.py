@@ -1,4 +1,11 @@
-from flask import Flask, render_template, request, jsonify, make_response, session as flask_session
+from flask import (
+    Flask,
+    render_template,
+    request,
+    jsonify,
+    make_response,
+    session as flask_session,
+)
 from flask_socketio import SocketIO, emit
 import time
 import uuid
@@ -23,9 +30,6 @@ CORS(app, resources={r"/*": {"origins": "*", "supports_credentials": True}})
 app.config["SECRET_KEY"] = "secret"
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-
-grid_size = 50
-
 engine = create_engine(f"postgresql://{pg_user}:{pg_password}@{pg_host}/roskildepixels")
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -37,21 +41,21 @@ metadata.reflect(bind=engine)
 canvas_table = metadata.tables["canvas"]
 canvas_history_table = metadata.tables["canvas_history"]
 
+canvas_array: np.ndarray  # Global variable to store the canvas, it should be in sync with the database table 'canvas'
+n_tiles = 45_000 # Number of tiles available for the users, DB has up to 80_000 tiles
 
 def load_canvas_from_db():
-
     global canvas_array
 
+    query = f"""
+    SELECT color FROM canvas where id < {n_tiles} order by id asc
+    """
+
     with engine.connect() as con:
-        df = pd.read_sql_query("SELECT color FROM canvas order by id asc", con)
-    # print(df.head())
-    # breakpoint()
-
-    # canvas_array = np.array([0xE5E8E8] * 20000)
-
-    # Set the color of the canvas to the dataframe, in hexadecimal
+        df = pd.read_sql_query(query, con)
     canvas_array = df["color"].to_numpy()
-    # print(canvas_array)
+
+    print(f'Sending {len(canvas_array)} tiles to the frontend')
 
     session.close()
 
@@ -76,9 +80,7 @@ def get_cookie():
         user_id = str(uuid.uuid4())
         print("New user, setting cookie")
 
-        new_user = User(
-            user_id=user_id, pixels_left=10
-        )
+        new_user = User(user_id=user_id, pixels_left=10)
         session.add(new_user)
 
         # Set a cookie that expires in 1 month
@@ -86,10 +88,14 @@ def get_cookie():
 
         response = make_response({"user_id": user_id})
         response.set_cookie(
-            "user_id", user_id, expires=expires, secure=True, httponly=True, #samesite="None"
+            "user_id",
+            user_id,
+            expires=expires,
+            secure=True,
+            httponly=True,  # samesite="None"
         )
         session.commit()
-        session.close() 
+        session.close()
 
         return response
     else:
@@ -138,68 +144,14 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/canvas")
-def canvas():
-    user_id = request.cookies.get("user_id")
-    session = Session()
-
-    # measure time it takes to query the database
-    start = time.time()
-    with engine.connect() as con:
-        df = pd.read_sql_query("SELECT * FROM canvas", con)
-    end = time.time()
-
-    print(f"Query took {end - start} seconds")
-    print(df.head())
-
-    if not user_id:
-        # This is a new user, let's set a cookie
-        user_id = str(uuid.uuid4())
-        print("New user, setting cookie")
-
-        new_user = User(
-            user_id=user_id, pixels_left=10
-        )  # Set your default pixel count here
-        session.add(new_user)
-
-        # Set a cookie that expires in 1 year
-        expires = int(time.time()) + 60 * 60 * 24 * 365
-        response = app.make_response(
-            render_template("canvas2.html", grid_size=grid_size)
-        )
-        response.set_cookie("user_id", user_id, expires=expires)
-    else:
-        # This user has visited before
-        cookie = request.cookies.get("user_id")
-        print(f"Returning user with cookie: {cookie}")
-
-        # Update User's last_seen_at
-        user = session.query(User).filter_by(user_id=user_id).first()
-
-        # if for some reason the user doesn't exist, create a new one
-        if not user:
-            new_user = User(user_id=user_id, pixels_left=10)
-            session.add(new_user)
-        else:
-            user.last_seen_at = datetime.utcnow()
-
-        response = render_template("canvas2.html", grid_size=grid_size)
-
-    # Commit changes and close the session
-    session.commit()
-    session.close()
-
-    return response
-
-
 @app.route("/trigger")
 def trigger():
-
     load_canvas_from_db()
 
     # Trigger a canvas update
     socketio.emit("update", {"data": "Update triggered!"})
     return "Triggered!"
+
 
 # @socketio.on("connect")
 # def handle_connect():
@@ -253,11 +205,11 @@ def handle_draw(data):
         # Maybe emit the original color back to the user and error message?
     finally:
         session.close()
-    
+
     emit("draw", data, broadcast=True)
 
 
 if __name__ == "__main__":
     # Run app for everyone on the network
 
-    socketio.run(app, debug=False)
+    socketio.run(app, debug=True)

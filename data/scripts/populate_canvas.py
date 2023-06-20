@@ -26,7 +26,7 @@ canvas = Table('canvas', metadata,
 
 metadata.create_all(engine) # Ensures table creation if not existing yet
 
-for i in range(20000):
+for i in range(80_000):
     # Generate random tile and color, in hex and convert to int
     color = 0xE5E8E8
     
