@@ -10,3 +10,16 @@ canvas {
         display: inline-block;
       }
       
+.color-box {
+  height: 20px;
+  width: 20px;
+}
+
+.footer {
+  text-align: center;
+  /* Sticky footer styles */
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  background: white;
+}

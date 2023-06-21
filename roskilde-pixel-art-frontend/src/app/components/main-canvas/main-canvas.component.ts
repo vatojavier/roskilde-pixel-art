@@ -1,10 +1,7 @@
-import { Component, OnInit, ViewChild, ElementRef, NgModule, ChangeDetectorRef, } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { Component, OnInit, ViewChild, ElementRef, NgModule, Input, } from '@angular/core';
+import { HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { WebsocketService } from 'src/app/shared/services/websocket.service';
-import { AppComponent } from 'src/app/app.component';
-import { sizes } from './canvas-sizes';
-
 
 @Component({
   selector: 'app-main-canvas',
@@ -13,6 +10,8 @@ import { sizes } from './canvas-sizes';
 })
 
 export class MainCanvasComponent implements OnInit {
+  @Input() isAdmin: boolean = false;
+
   gridSize: number;
   pixelSize: number;
   selectedPixelColor = '#1aa8cb';
@@ -44,10 +43,14 @@ export class MainCanvasComponent implements OnInit {
   finalCoordinates: any;
   rectCoordinates: any;
   pixelID: number;
+  timeTaken: any;
+  deleteMode: boolean = false;
+  selectedPixels: any[];
+  password:'';
+  deleteUrl: 'http://localhost:5000/api/delete_pixels';
   constructor(
     private http: HttpClient, // Error here
     private websocketService: WebsocketService,
-    private changeDetectorRef: ChangeDetectorRef
   ) {
 
   }
@@ -60,46 +63,30 @@ export class MainCanvasComponent implements OnInit {
 
   ngOnInit(): void {
     
-
-    const selectedSize = sizes['large'];
-    this.tileNumberX = selectedSize.tileNumberX;
-    this.tileNumberY = selectedSize.tileNumberY;
-
-    this.canvasWidth = selectedSize.canvasWidth;
-    this.canvasHeight = selectedSize.canvasHeight;
-
+    // Fetch msg from backend.
+    this.http.get('http://localhost:5000/api/get_msg').subscribe((data: any) => {
+      this.msg = data.message;
+      console.log(this.msg);
+    });
+    
     // Set cookie and send it with the request
     this.http.get('http://localhost:5000/api/get_cookie', { withCredentials: true }).subscribe((data: any) => {
-      // console.log('Cookie:', data);
+      console.log('Cookie:', data);
       this.userID = data.user_id;
-      // console.log('UserID:', this.userID);
+      console.log('UserID:', this.userID);
 
     });
 
-    // // Fetch msg from backend.
-    // this.http.get('http://localhost:5000/api/get_canvas_size').subscribe((data: any) => {
+    // this.userID = document.cookie.replace(/(?:(?:^|.*;\s*)user_id\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 
-    //   console.log('Canvas size:', data);
 
-    //   this.tileNumberX = data.n_tiles_x;
-    //   this.tileNumberY = data.n_tiles_y;
-
-    //   this.canvasWidth = data.canvas_width;
-    //   this.canvasHeight = data.canvas_height;
-
-    //   console.log('this.tileNumberX', this.tileNumberX);
-    //   console.log('this.tileNumberY', this.tileNumberY);
-
-    //   console.log('this.canvasWidth', this.canvasWidth);
-    //   console.log('this.canvasHeight', this.canvasHeight);
-    // });
-
+    // Measure the time it takes to fetch the canvas data
     const t0 = performance.now();
     this.fetchCanvasData();
     const t1 = performance.now();
 
     console.log('Fetching canvas data took ' + (t1 - t0) + ' milliseconds.');
-
+    this.timeTaken = t1 - t0;
 
     this.websocketService.connect();
 
@@ -108,8 +95,10 @@ export class MainCanvasComponent implements OnInit {
     });
 
     this.websocketService.onDraw().subscribe((response: any) => {
-      // console.log('onDraw response', response); 
-      this.drawFromTileID(response.pixelID, response.color);
+      // console.log('onDraw response', response);
+      // this.drawFromGrid(response.x, response.y, response.color);
+
+      this.drawFromGridID(response.pixelID, response.color);
     });
 
     this.websocketService.onUpdate().subscribe((response: any) => {
@@ -132,24 +121,32 @@ export class MainCanvasComponent implements OnInit {
       }
     );
   }
-
   fillTilesWithData() {
     const canvasElement = this.canvas.nativeElement;
 
-    console.log('Fetched data of size', this.canvasData.length);
-
     for (let i = 0; i < this.canvasData.length; i++) {
+      // const x = i % this.tileNumberX;
+      // const y = Math.floor(i / this.tileNumberX);
+      // this.drawFromGrid(x, y, this.canvasData[i]);
+      // console.log('x, y, this.canvasData[i]', x, y, this.canvasData[i]);
+
+      // Convert hexadecimal number to hex color string with the # prefix
       const color = this.canvasData[i].toString(16).padStart(6, '0');
-      this.drawFromTileID(i, color);
+
+
+      // console.log('color', color);
+
+      this.drawFromGridID(i, color);
     }
   }
 
-  drawFromTileID(id: number, color: string): void {
+  drawFromGridID(id: number, color: string): void {
     // Verify that the id is valid
     if (id < 0 || id >= this.tileNumberX * this.tileNumberY) {
       console.log('Invalid grid id', id);
       return;
     }
+    // console.log('drawFromGridID', id, color);
 
     // Draw the pixel
     const x = id % this.tileNumberX;
@@ -167,27 +164,37 @@ export class MainCanvasComponent implements OnInit {
     this.context.fillStyle = color;
     this.context.fillRect(x * this.tileSizeX, y * this.tileSizeY, this.tileSizeX, this.tileSizeY);
   }
-
   ngAfterViewInit() {
-
     const canvasElement = this.canvas.nativeElement
     this.context = canvasElement.getContext('2d');
     // this.context.fillStyle = "white";
     this.context.fillRect(0, 0, canvasElement.width, canvasElement.height);
+    // console.log('this.context', this.context)
+
+    this.tileNumberX = 200;
+    this.tileNumberY = 100;
+    
+    this.canvasWidth = canvasElement.width;
+    this.canvasHeight = canvasElement.height;
 
     // Check that the ratio makes squared tiles
     if (this.canvasWidth / this.tileNumberX != this.canvasHeight / this.tileNumberY) {
       console.error('The ratio of the canvas width and height does not match the ratio of the tile numbers');
     }
 
+    // this.gridSize = 50;
+    // this.pixelSize = canvasElement.width / this.gridSize;
+
+    // Calculate the size of each tile
     this.tileSizeX = this.canvasWidth / this.tileNumberX;
     this.tileSizeY = this.canvasHeight / this.tileNumberY;
 
-
-
-    console.log('this.tileSizeX', this.tileSizeX);
-    console.log('this.tileSizeY', this.tileSizeY);
-
+    // Draw the grid
+    // for (let i = 0; i < this.tileNumberX; i++) {
+    //   for (let j = 0; j < this.tileNumberY; j++) {
+    //     this.context.strokeRect(i * this.tileSizeX, j * this.tileSizeY, this.tileSizeX, this.tileSizeY);
+    //   }
+    // }
     
     canvasElement.addEventListener('mousedown', this.handleMouseDown.bind(this));
     canvasElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
@@ -203,6 +210,15 @@ export class MainCanvasComponent implements OnInit {
     this.websocketService.sendMessage(event, messageObject);
   }
 
+  selectPixelsForDeletion(): void{
+    this.deleteMode = true;
+    this.selectedPixels = [];
+    console.log('this.deleteMode', this.deleteMode)
+  }
+
+  setDrawMode(): void {
+    this.deleteMode = false;
+  }
   // handleCanvasClick(event: MouseEvent): void {
   //   const canvasElement = this.canvas.nativeElement;
   //   const rect = canvasElement.getBoundingClientRect();
@@ -285,17 +301,21 @@ export class MainCanvasComponent implements OnInit {
     }
   }
 
+  // draw(x: number, y: number, color: string = this.selectedPixelColor, emit: boolean = true, isOwner: boolean = true): void {
+
+  //   console.log('draw', x, y);
+
   draw(x: number, y: number, color: string = this.selectedPixelColor, emit: boolean = true, isOwner: boolean = true): void {
 
 
     const canvasElement = this.canvas.nativeElement;
     const rect = canvasElement.getBoundingClientRect();
-    // console.log('rect.left rect.top', rect.left, rect.top)
+    console.log('rect.left rect.top', rect.left, rect.top)
     this.rectCoordinates = "" + rect.left + " ||" + rect.top
-    // console.log('unscaled coordinates', x, y)
+    console.log('unscaled coordinates', x, y)
     this.unscaledCoordinates = "x:" + x + " y:" + y
 
-    // console.log('drawable coordinates', x - rect.left, y - rect.top)
+    console.log('drawable coordinates', x - rect.left, y - rect.top)
 
 
     let canvasPositionX = x - rect.left;
@@ -311,14 +331,14 @@ export class MainCanvasComponent implements OnInit {
   
     this.pixelID = canvasX + canvasY * this.tileNumberX;
     
-    // console.log('draw', x, y);
-    // console.log('Canvas position', canvasPositionX, canvasPositionY);
+    console.log('draw', x, y);
+    console.log('Canvas position', canvasPositionX, canvasPositionY);
 
     this.context.fillStyle = this.selectedPixelColor;
 
     this.context.fillRect(canvasX * this.tileSizeX, canvasY * this.tileSizeY, this.tileSizeX, this.tileSizeY);
-    // console.log('PixelID', this.pixelID);
-    // console.log('Color', color);
+    console.log('PixelID', this.pixelID);
+    console.log('Color', color);
 
     // this.pixelID = canvasPositionX + canvasPositionY * 200;
     this.drawableCoordinates = "" + canvasX + " " + canvasY
@@ -331,14 +351,55 @@ export class MainCanvasComponent implements OnInit {
       this.tileSizeY
     );
     if (emit) {
-      // this.sendMessage('draw', { x: canvasX, y: canvasY, color: color });
-      // console.log("Drawing")
-      console.log('PixelID', this.pixelID);
+      // this.sendMessage('draw', { x: canvasX, y: canvasY, color: color });      
       this.sendMessage('draw', { pixelID: this.pixelID, color: this.selectedPixelColor, userID: this.userID });
     }
     if  (isOwner) {
       this.totalPixels += 1;
     }
+    if(this.deleteMode && this.isAdmin){
+      console.log('inside draw [BEFORE]',this.selectedPixels)
+      if(this.selectedPixels.length==1){
+        this.selectedPixels.push(this.pixelID)
+        console.log('sending for deletion',this.selectedPixels)
+
+        this.sendPixelsForDeletion(this.selectedPixels)
+      }else{
+        this.selectedPixels.push(this.pixelID)
+      }          
+      console.log('inside draw [AFTER]',this.selectedPixels)
+
+    }
+  }
+  sendPixelsForDeletion(selectedPixels: any[]) {
+    const firstPixel = selectedPixels[0]
+    const secondPixel = selectedPixels[1]
+
+    const row1 = Math.floor(firstPixel / 200);
+    const col1 = firstPixel % 200;
+    const row2 = Math.floor(secondPixel / 200);
+    const col2 = secondPixel % 200;
+  
+    const topLeftRow = Math.min(row1, row2);
+    const topLeftCol = Math.min(col1, col2);
+    const bottomRightRow = Math.max(row1, row2);
+    const bottomRightCol = Math.max(col1, col2);
+  
+    const pixelIds = [];
+    for (let row = topLeftRow; row <= bottomRightRow; row++) {
+      for (let col = topLeftCol; col <= bottomRightCol; col++) {
+        const pixelId = row * 200 + col;
+        pixelIds.push(pixelId);
+      }
+    }
+    console.log('pixelIds', pixelIds)
+    this.selectedPixels = [];
+    const data = {password: this.password, pixel_ids: pixelIds}
+    this.http.post<any>('http://localhost:5000/api/delete_pixels', data).subscribe(data => {
+      console.log('delete', data);
+  },error => {
+    console.log('delete error', error)
+  })
   }
 
   drawOnReceive(x: number, y: number, color: string = this.selectedPixelColor, emit: boolean = true, isOwner: boolean = true): void {

@@ -71,6 +71,28 @@ def get_canvas():
     return jsonify(data)
 
 
+@app.route("/api/delete_pixels",  methods = ['GET', 'POST'])
+def delete_pixels():
+    # Convert number to hexadeciaml color code with the leading #
+    parameters = request.get_json() 
+    if 'pixel_ids' in parameters and 'password' in parameters: # maybe a validation function here
+        pixel_ids = parameters['pixel_ids']
+        password = parameters['password']
+        if password=='correct':            
+            try:
+                # delete here   
+                message, status = 'OK' , 200
+                # emit draw for deleted pixel ids with a white pixel maybe?
+                # [emit("draw", pixel_id, broadcast=True) for pixel_id in pixel_ids]
+            except Exception as error:
+                message, status = error , 500
+        else:
+            message, status = 'Unauthorized' , 401
+    else:
+        message, status = 'Bad Request' , 400
+
+    return jsonify({"message" :message}), status
+
 @app.route("/api/get_cookie")
 def get_cookie():
     user_id = request.cookies.get("user_id")

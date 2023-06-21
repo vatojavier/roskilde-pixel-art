@@ -14,11 +14,35 @@ drawableCoordinates: {{drawableCoordinates}}<br>
 finalCoordinates: {{finalCoordinates}}<br>
 pixelID: {{pixelID}}<br>
 
+<div *ngIf="isAdmin">
+    <button (click)="selectPixelsForDeletion()" *ngIf="isAdmin && !deleteMode">Remove Draw Mode; Put Delete Mode</button>
+    <button (click)="setDrawMode()" *ngIf="isAdmin && deleteMode">Remove Delete Mode; Put Draw Mode</button>    
+    <label for="password">Password:</label>
+    <input type="text" id="password" name="password" [(ngModel)]="password"><br><br>
+</div>
+
 
 
 <div id="container" style="display: flex; justify-content: center; align-items: center;">
 <canvas #canvas id="canvas" [width]="canvasWidth" [height]="canvasHeight" ></canvas>
 </div>
+<div>
+    <div style="display: flex;">
+      <div class="color-box" style="background-color: red;"></div>
+      <div class="color-box" style="background-color: orange;"></div>
+      <div class="color-box" style="background-color: yellow;"></div>
+      <div class="color-box" style="background-color: green;"></div>
+    </div>
+    <div style="display: flex;">
+      <div class="color-box" style="background-color: blue;"></div>
+      <div class="color-box" style="background-color: indigo;"></div>
+      <div class="color-box" style="background-color: violet;"></div>
+      <div class="color-box" style="background-color: black;"></div>
+    </div>
+  </div>
 <div>Total Pixel Count:{{totalPixels}}</div>
 <button (click)="sendMessage('message','hello!')">send message</button>
+
 </div>
+
+<div class="footer">FOOTER</div>
