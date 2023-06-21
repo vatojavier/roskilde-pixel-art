@@ -211,5 +211,11 @@ def handle_draw(data):
 
 if __name__ == "__main__":
     # Run app for everyone on the network
+    debug = False
 
-    socketio.run(app, debug=True)
+    if os.environ.get("FLASK_ENV") == "dev":
+        print("Running in dev mode")
+        debug = True
+    
+
+    socketio.run(app, debug=debug)
