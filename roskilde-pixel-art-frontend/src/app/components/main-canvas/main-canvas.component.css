@@ -15,6 +15,19 @@ canvas {
   width: 20px;
 }
 
+.messagePopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  width: 264px;
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+}
+
+
 .footer {
   text-align: center;
   /* Sticky footer styles */
@@ -23,3 +36,4 @@ canvas {
   width: 100%;
   background: white;
 }
+

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, NgModule, Input, } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgModule, Input, HostListener, } from '@angular/core';
 import { HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { WebsocketService } from 'src/app/shared/services/websocket.service';
@@ -11,7 +11,7 @@ import { WebsocketService } from 'src/app/shared/services/websocket.service';
 
 export class MainCanvasComponent implements OnInit {
   @Input() isAdmin: boolean = false;
-
+  isFirstTimeUser: boolean = false;
   gridSize: number;
   pixelSize: number;
   selectedPixelColor = '#1aa8cb';
@@ -73,6 +73,8 @@ export class MainCanvasComponent implements OnInit {
     this.http.get('http://localhost:5000/api/get_cookie', { withCredentials: true }).subscribe((data: any) => {
       console.log('Cookie:', data);
       this.userID = data.user_id;
+      this.isFirstTimeUser = data.is_first_time_user;
+      console.log('isFirstTimeUser:', this.isFirstTimeUser);
       console.log('UserID:', this.userID);
 
     });
