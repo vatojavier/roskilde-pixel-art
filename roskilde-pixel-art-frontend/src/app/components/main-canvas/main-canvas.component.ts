@@ -12,13 +12,16 @@ import { WebsocketService } from 'src/app/shared/services/websocket.service';
 export class MainCanvasComponent implements OnInit {
   @Input() isAdmin: boolean = false;
   @ViewChild('footer', { static: true }) footerRef: ElementRef;
+  @ViewChild('viewport', { static: false }) viewport: ElementRef;
+  remainingTime: number = 1; // get this from the server  -  in seconds
+  displayTime: string; // Formatted time to display
   isFirstTimeUser: boolean = false;
   gridSize: number;
   pixelSize: number;
   selectedPixelColor = '#1aa8cb';
   isDrawing = false;
   totalPixels = 0; // get this from cookie
-
+  totalAllowedPixels = 70;
   tileNumberX: number = 300;
   tileNumberY: number = 150;
 
@@ -49,6 +52,8 @@ export class MainCanvasComponent implements OnInit {
   selectedPixels: any[];
   password: '';
   deleteUrl: 'http://localhost:5000/api/delete_pixels';
+  timer: any;
+  defaultTimeout: number = 5;
   constructor(
     private http: HttpClient, // Error here
     private websocketService: WebsocketService,
@@ -68,7 +73,9 @@ export class MainCanvasComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.adjustFooter();
+    // this.scrollToCenter();
+    this.makeInitialDisplayTime()
+    // this.remainingTime = 10;
     // Fetch msg from backend.
     this.http.get('http://localhost:5000/api/get_msg').subscribe((data: any) => {
       this.msg = data.message;
@@ -116,6 +123,7 @@ export class MainCanvasComponent implements OnInit {
 
   }
   ngAfterViewInit() {
+
     const canvasElement = this.canvas.nativeElement
     this.context = canvasElement.getContext('2d');
     // this.context.fillStyle = "white";
@@ -153,9 +161,62 @@ export class MainCanvasComponent implements OnInit {
     canvasElement.addEventListener('pointerdown', this.handlePointerDown.bind(this));
     canvasElement.addEventListener('pointermove', this.handlePointerMove.bind(this));
     canvasElement.addEventListener('pointerup', this.handlePointerUp.bind(this));
+    this.adjustFooter();
 
   }
+  startTimer() {
+    clearInterval(this.timer); 
+    this.timer = setInterval(() => {
+      this.updateTime();
+    }, 1000); // Update time every second
+  }
 
+
+  updateTime() {
+    console.log('this.remainingTime start', this.remainingTime)
+
+    if (this.remainingTime > 0) {
+      const minutes = Math.floor(this.remainingTime / 60);
+      const seconds = this.remainingTime % 60;
+
+      // Format the time as 'mm:ss'
+      this.displayTime = `${this.padNumber(minutes)}:${this.padNumber(seconds)}`;
+      
+      this.remainingTime--;
+    }else if (this.remainingTime===0){
+      clearInterval(this.timer);
+      this.remainingTime = this.defaultTimeout
+      console.log('this.remainingTime inside', this.remainingTime)
+      this.makeInitialDisplayTime()
+      this.totalPixels = 0
+    }
+  }
+
+  padNumber(number: number): string {
+    return String(number).padStart(2, '0');
+  }
+
+  makeInitialDisplayTime(){
+    const minutes = Math.floor(this.remainingTime / 60);
+    const seconds = this.remainingTime % 60;
+
+    // Format the time as 'mm:ss'
+    this.displayTime = `${this.padNumber(minutes)}:${this.padNumber(seconds)}`;
+  }
+  // scrollToCenter() {
+  //   const options: ScrollToOptions = {
+  //     top: window.innerHeight / 2,
+  //     behavior: 'smooth'
+  //   };
+
+  //   window.scrollTo(options);
+  // }
+  scrollToCenter() {
+    const elementRect = this.viewport.nativeElement.getBoundingClientRect();
+    const absoluteElementTop = elementRect.top + window.pageYOffset;
+    const middle = absoluteElementTop - (elementRect.height / 2);  
+    window.scrollTo(0, middle); // have a window object reference in your component
+  }
   adjustFooter() {
     const footer: HTMLElement = this.footerRef.nativeElement;
 
@@ -225,7 +286,10 @@ export class MainCanvasComponent implements OnInit {
     // this.websocketService.sendMessage(event, messageObject);
     this.websocketService.sendMessage(event, messageObject);
   }
-
+  
+  setColor(color: string): void {
+    this.selectedPixelColor = color;
+  }
   selectPixelsForDeletion(): void {
     this.deleteMode = true;
     this.selectedPixels = [];
@@ -372,6 +436,9 @@ export class MainCanvasComponent implements OnInit {
     }
     if (isOwner) {
       this.totalPixels += 1;
+      if(this.totalPixels===1){
+          this.startTimer();
+      }
     }
     if (this.deleteMode && this.isAdmin) {
       console.log('inside draw [BEFORE]', this.selectedPixels)

@@ -1,18 +1,35 @@
+.heading {
+  font-family: 'VT323', monospace;
+  height: fit-content;
+  font-size: 50px;
+  background: white;
+  border-radius: 14px;
+  padding: 7px;
+  top: 3%;
+  max-width: fit-content;
+}
+
+.canvasContainer {
+  top: 15%;
+  position: relative;
+}
+
 canvas {
-        border: 1px solid black;
-        image-rendering: pixelated;
-      }
-      
-      .color {
-        cursor: pointer;
-        width: 20px;
-        height: 20px;
-        display: inline-block;
-      }
-      
-.color-box {
-  height: 20px;
+  border: 1px solid black;
+  image-rendering: pixelated;
+}
+
+.color {
+  cursor: pointer;
   width: 20px;
+  height: 20px;
+  display: inline-block;
+}
+
+.color-box {
+  height: 30px;
+  width: 30px;
+  border-radius: 8px
 }
 
 .messagePopup {
@@ -28,6 +45,7 @@ canvas {
 }
 
 .footer {
+  font-family: 'VT323', monospace;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -41,5 +59,7 @@ canvas {
   border-radius: 50px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  font-size: 22px;
   /* Other styles for the footer */
 }

@@ -102,5 +102,8 @@
       }
     }
   },
-  "defaultProject": "roskilde-pixel-art-frontend"
+  "defaultProject": "roskilde-pixel-art-frontend",
+  "cli": {
+    "analytics": false
+  }
 }

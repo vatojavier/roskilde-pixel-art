@@ -1,20 +1,23 @@
-<div style="background-image: url('../../assets/images/musician pixel art background 1928x1072.png');
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: center;
-            height: 100vh;
-            min-width: 1000px;">
-<p>main-canvas works!</p>
-<div>
-    <input type="color" id="head" name="head"  [(ngModel)]="selectedPixelColor">
-</div>
-rect: {{rectCoordinates}}<br>
+<div #viewport style="background-image: url('../../assets/images/musician pixel art background 1928x1072.png');
+    background-repeat: repeat;
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 1200px;
+    ">
+
+<div class="heading">Roskilde Pixel Art</div>
+
+<!-- rect: {{rectCoordinates}}<br>
 unscaledCoordinates: {{unscaledCoordinates}}<br>
 drawableCoordinates: {{drawableCoordinates}}<br>
 finalCoordinates: {{finalCoordinates}}<br>
 pixelID: {{pixelID}}<br>
-this.isFirstTimeUser: {{this.isFirstTimeUser}}<br>
-<div *ngIf="isAdmin">
+this.isFirstTimeUser: {{this.isFirstTimeUser}}<br> -->
+<div *ngIf="isAdmin"> 
     <button (click)="selectPixelsForDeletion()" *ngIf="isAdmin && !deleteMode">Remove Draw Mode; Put Delete Mode</button>
     <button (click)="setDrawMode()" *ngIf="isAdmin && deleteMode">Remove Delete Mode; Put Draw Mode</button>    
     <label for="password">Password:</label>
@@ -23,26 +26,10 @@ this.isFirstTimeUser: {{this.isFirstTimeUser}}<br>
 
 
 
-<div id="container" style="display: flex; justify-content: center; align-items: center;">
+<div id="container" class="canvasContainer">
 <canvas #canvas id="canvas" [width]="canvasWidth" [height]="canvasHeight" ></canvas>
 </div>
-<div>
-    <div style="display: flex;">
-      <div class="color-box" style="background-color: red;"></div>
-      <div class="color-box" style="background-color: orange;"></div>
-      <div class="color-box" style="background-color: yellow;"></div>
-      <div class="color-box" style="background-color: green;"></div>
-    </div>
-    <div style="display: flex;">
-      <div class="color-box" style="background-color: blue;"></div>
-      <div class="color-box" style="background-color: indigo;"></div>
-      <div class="color-box" style="background-color: violet;"></div>
-      <div class="color-box" style="background-color: black;"></div>
-    </div>
-  </div>
-<div>Total Pixel Count:{{totalPixels}}</div>
-<button (click)="sendMessage('message','hello!')">send message</button>
-
+<div style="height:500px"></div>
 </div>
 
 <div class="messagePopup"  *ngIf="isFirstTimeUser">
@@ -56,8 +43,33 @@ this.isFirstTimeUser: {{this.isFirstTimeUser}}<br>
 </div>
 
 <div class="footer" id="footer" #footer>
-  <div>icon</div>
-  <div>color picker</div>
-  <div>quota</div>
-
+  <div>  
+  <div style="    display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+">
+<div>{{ displayTime }}</div>
+    <div style="font-size: 12px;">to get more </div>
+    <div style="font-size: 12px;">pixels!</div>
+  </div>
+</div>
+  <div>
+      <div style="display: flex;">
+        <div class="color-box" style="background-color: red;" (click)="setColor('red')"></div>
+        <div class="color-box" style="background-color: gray;" (click)="setColor('gray')"></div>
+        <div class="color-box" style="background-color: yellow;" (click)="setColor('yellow')"></div>
+        <div class="color-box" style="background-color: green;" (click)="setColor('green')"></div>
+      </div>
+      <div style="display: flex;">
+        <div class="color-box" style="background-color: blue;" (click)="setColor('blue')"></div>
+        <div class="color-box" style="background-color: indigo;" (click)="setColor('indigo')"></div>
+        <div class="color-box" style="background-color: violet;" (click)="setColor('violet')"></div>
+        <div class="color-box" style="background-color: black;" (click)="setColor('black')"></div>
+      </div>
+    </div>
+    <div>
+      <div>{{totalPixels}} / {{totalAllowedPixels}}</div>
+      <div>pixels</div>
+    </div>
 </div>
