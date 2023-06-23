@@ -161,7 +161,9 @@ export class MainCanvasComponent implements OnInit {
     canvasElement.addEventListener('pointerdown', this.handlePointerDown.bind(this));
     canvasElement.addEventListener('pointermove', this.handlePointerMove.bind(this));
     canvasElement.addEventListener('pointerup', this.handlePointerUp.bind(this));
-    this.adjustFooter();
+    window.scrollBy(370, 1); //to bring the page to the center, the 1 is so that the footer adjusts properly to the bottom of the page
+
+    // this.adjustFooter();
 
   }
   startTimer() {
