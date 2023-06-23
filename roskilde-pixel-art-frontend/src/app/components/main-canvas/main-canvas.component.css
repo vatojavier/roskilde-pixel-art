@@ -27,13 +27,19 @@ canvas {
   border-radius: 20px;
 }
 
-
 .footer {
-  text-align: center;
-  /* Sticky footer styles */
-  position: sticky;
+  position: fixed;
   bottom: 0;
+  left: 0;
   width: 100%;
-  background: white;
+  padding: 20px;
+  background-color: orange;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-transition: all 0.2s ease-in-out;
+  -webkit-transform-origin: 0 100%;
+  border-radius: 50px;
+  display: flex;
+  justify-content: space-between;
+  /* Other styles for the footer */
 }
-

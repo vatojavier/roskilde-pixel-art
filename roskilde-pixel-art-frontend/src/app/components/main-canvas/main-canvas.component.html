@@ -13,7 +13,7 @@ unscaledCoordinates: {{unscaledCoordinates}}<br>
 drawableCoordinates: {{drawableCoordinates}}<br>
 finalCoordinates: {{finalCoordinates}}<br>
 pixelID: {{pixelID}}<br>
-
+this.isFirstTimeUser: {{this.isFirstTimeUser}}<br>
 <div *ngIf="isAdmin">
     <button (click)="selectPixelsForDeletion()" *ngIf="isAdmin && !deleteMode">Remove Draw Mode; Put Delete Mode</button>
     <button (click)="setDrawMode()" *ngIf="isAdmin && deleteMode">Remove Delete Mode; Put Draw Mode</button>    
@@ -55,4 +55,9 @@ pixelID: {{pixelID}}<br>
 
 </div>
 
-<div class="footer">FOOTER</div>
+<div class="footer" id="footer" #footer>
+  <div>icon</div>
+  <div>color picker</div>
+  <div>quota</div>
+
+</div>
