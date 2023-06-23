@@ -21,7 +21,7 @@ import { AdminCanvasComponent } from './components/admin-canvas/admin-canvas.com
     FormsModule,
     HttpClientModule,
     SocketIoModule.forRoot({
-      url: environment.websocketUrl, // Replace with your WebSocket server URL
+      url: 'http://localhost:5000', // Replace with your WebSocket server URL
     }),
   ],
   providers: [],

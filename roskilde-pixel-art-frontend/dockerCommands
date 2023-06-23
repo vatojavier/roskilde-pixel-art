@@ -1,0 +1,6 @@
+docker build -t roskilde-frontend .  
+
+docker run -d -p 4200:80 roskilde-frontend 
+
+docker runs on port 80 inside and 4200 on the outside, 
+    we open port 4200 to access the application
