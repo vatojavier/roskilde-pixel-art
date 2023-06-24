@@ -51,7 +51,7 @@ export class MainCanvasComponent implements OnInit {
   deleteMode: boolean = false;
   selectedPixels: any[];
   password: '';
-  deleteUrl: 'http://localhost:5000/api/delete_pixels';
+  serverURL: 'https://roskildepixel.dk/'
   timer: any;
   defaultTimeout: number = 5;
   constructor(
@@ -83,7 +83,8 @@ export class MainCanvasComponent implements OnInit {
     // });
 
     // Set cookie and send it with the request
-    this.http.get('http://localhost:5000/api/get_cookie', { withCredentials: true }).subscribe((data: any) => {
+    console.log(('https://roskildepixel.dk/'+'api/get_cookie'))
+    this.http.get('https://roskildepixel.dk/'+'api/get_cookie', { withCredentials: true }).subscribe((data: any) => {
       console.log('Cookie:', data);
       this.userID = data.user_id;
       this.isFirstTimeUser = data.is_first_time_user;
@@ -93,19 +94,19 @@ export class MainCanvasComponent implements OnInit {
      
 
 
-      this.http.get('http://localhost:5000/api/get_max_pixels_per_user', { withCredentials: true }).subscribe((data: any) => {
+      this.http.get('https://roskildepixel.dk/'+'api/get_max_pixels_per_user', { withCredentials: true }).subscribe((data: any) => {
         console.log('Max pixels:', data);
       });
 
-      this.http.get('http://localhost:5000/api/get_pixels_left', { withCredentials: true }).subscribe((data: any) => {
+      this.http.get('https://roskildepixel.dk/'+'api/get_pixels_left', { withCredentials: true }).subscribe((data: any) => {
         console.log('Pixels left:', data);
       });
 
-      this.http.get('http://localhost:5000/api/get_max_cool_down_time', { withCredentials: true }).subscribe((data: any) => {
+      this.http.get('https://roskildepixel.dk/'+'api/get_max_cool_down_time', { withCredentials: true }).subscribe((data: any) => {
         console.log('max_cool_down_seconds:', data);
       });
 
-      this.http.get('http://localhost:5000/api/get_cool_down_time_left', { withCredentials: true }).subscribe((data: any) => {
+      this.http.get('https://roskildepixel.dk/'+'api/get_cool_down_time_left', { withCredentials: true }).subscribe((data: any) => {
         console.log('cool_down_time_left:', data);
       });
 
@@ -249,7 +250,7 @@ export class MainCanvasComponent implements OnInit {
     footer.style.transform = `scale(${window.innerWidth / document.documentElement.clientWidth})`;  
   }
   fetchCanvasData(): void {
-    this.http.get<any[]>('http://localhost:5000/api/get_canvas').subscribe(
+    this.http.get<any[]>('https://roskildepixel.dk/'+'api/get_canvas').subscribe(
       (data: any[]) => {
 
         this.canvasData = data;
@@ -505,7 +506,7 @@ export class MainCanvasComponent implements OnInit {
     console.log('pixelIds', pixelIds)
     this.selectedPixels = [];
     const data = { password: this.password, pixel_ids: pixelIds }
-    this.http.post<any>('http://localhost:5000/api/delete_pixels', data).subscribe(data => {
+    this.http.post<any>('https://roskildepixel.dk/'+'api/delete_pixels', data).subscribe(data => {
       console.log('delete', data);
     }, error => {
       console.log('delete error', error)
