@@ -77,10 +77,10 @@ export class MainCanvasComponent implements OnInit {
     this.makeInitialDisplayTime()
     // this.remainingTime = 10;
     // Fetch msg from backend.
-    this.http.get('http://localhost:5000/api/get_msg').subscribe((data: any) => {
-      this.msg = data.message;
-      console.log(this.msg);
-    });
+    // this.http.get('http://localhost:5000/api/get_msg').subscribe((data: any) => {
+    //   this.msg = data.message;
+    //   console.log(this.msg);
+    // });
 
     // Set cookie and send it with the request
     this.http.get('http://localhost:5000/api/get_cookie', { withCredentials: true }).subscribe((data: any) => {
@@ -90,7 +90,28 @@ export class MainCanvasComponent implements OnInit {
       console.log('isFirstTimeUser:', this.isFirstTimeUser);
       console.log('UserID:', this.userID);
 
+     
+
+
+      this.http.get('http://localhost:5000/api/get_max_pixels_per_user', { withCredentials: true }).subscribe((data: any) => {
+        console.log('Max pixels:', data);
+      });
+
+      this.http.get('http://localhost:5000/api/get_pixels_left', { withCredentials: true }).subscribe((data: any) => {
+        console.log('Pixels left:', data);
+      });
+
+      this.http.get('http://localhost:5000/api/get_max_cool_down_time', { withCredentials: true }).subscribe((data: any) => {
+        console.log('max_cool_down_seconds:', data);
+      });
+
+      this.http.get('http://localhost:5000/api/get_cool_down_time_left', { withCredentials: true }).subscribe((data: any) => {
+        console.log('cool_down_time_left:', data);
+      });
+
+
     });
+
 
     // this.userID = document.cookie.replace(/(?:(?:^|.*;\s*)user_id\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 
@@ -261,10 +282,10 @@ export class MainCanvasComponent implements OnInit {
 
   drawFromGridID(id: number, color: string): void {
     // Verify that the id is valid
-    if (id < 0 || id >= this.tileNumberX * this.tileNumberY) {
-      console.log('Invalid grid id', id);
-      return;
-    }
+    // if (id < 0 || id >= this.tileNumberX * this.tileNumberY) {
+    //   console.log('Invalid grid id', id);
+    //   return;
+    // }
     // console.log('drawFromGridID', id, color);
 
     // Draw the pixel
@@ -275,10 +296,10 @@ export class MainCanvasComponent implements OnInit {
 
   drawFromGrid(x: number, y: number, color: string): void {
     // Verify that the x and y are valid
-    if (x < 0 || x >= this.tileNumberX || y < 0 || y >= this.tileNumberY) {
-      console.log('Invalid grid coordinates', x, y);
-      return;
-    }
+    // if (x < 0 || x >= this.tileNumberX || y < 0 || y >= this.tileNumberY) {
+    //   console.log('Invalid grid coordinates', x, y);
+    //   return;
+    // }
     // Draw the pixel
     this.context.fillStyle = color;
     this.context.fillRect(x * this.tileSizeX, y * this.tileSizeY, this.tileSizeX, this.tileSizeY);

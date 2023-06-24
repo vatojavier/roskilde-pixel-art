@@ -12,7 +12,7 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     last_seen_at = Column(DateTime, default=datetime.datetime.utcnow)
     pixels_left = Column(Integer)
-    last_pixel_placed_at = Column(DateTime)
+    reset_pixel_placed_at = Column(DateTime)
 
 class CanvasHistory(Base):
     __tablename__ = 'canvas_history'
