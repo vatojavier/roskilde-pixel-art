@@ -12,7 +12,7 @@ import uuid
 from sqlalchemy import create_engine, update, MetaData
 from sqlalchemy.orm import sessionmaker
 from models import User, CanvasHistory
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from flask_cors import CORS
 import pandas as pd
 import numpy as np
@@ -42,7 +42,11 @@ canvas_table = metadata.tables["canvas"]
 canvas_history_table = metadata.tables["canvas_history"]
 
 canvas_array: np.ndarray  # Global variable to store the canvas, it should be in sync with the database table 'canvas'
-n_tiles = 45_000 # Number of tiles available for the users, DB has up to 80_000 tiles
+n_tiles = 45_000  # Number of tiles available for the users, DB has up to 80_000 tiles
+
+max_pixels_per_user = int(os.getenv("MAX_PIXELS_PER_USER"))
+max_cool_down_minutes = int(os.getenv("COOLDOWN_MINUTES"))
+
 
 def load_canvas_from_db():
     global canvas_array
@@ -55,7 +59,7 @@ def load_canvas_from_db():
         df = pd.read_sql_query(query, con)
     canvas_array = df["color"].to_numpy()
 
-    print(f'Sending {len(canvas_array)} tiles to the frontend')
+    print(f"Sending {len(canvas_array)} tiles to the frontend")
 
     session.close()
 
@@ -71,6 +75,31 @@ def get_canvas():
     return jsonify(data)
 
 
+@app.route("/api/delete_pixels", methods=["GET", "POST"])
+def delete_pixels():
+    # Convert number to hexadeciaml color code with the leading #
+    parameters = request.get_json()
+    if (
+        "pixel_ids" in parameters and "password" in parameters
+    ):  # maybe a validation function here
+        pixel_ids = parameters["pixel_ids"]
+        password = parameters["password"]
+        if password == "correct":
+            try:
+                # delete here
+                message, status = "OK", 200
+                # emit draw for deleted pixel ids with a white pixel maybe?
+                # [emit("draw", pixel_id, broadcast=True) for pixel_id in pixel_ids]
+            except Exception as error:
+                message, status = error, 500
+        else:
+            message, status = "Unauthorized", 401
+    else:
+        message, status = "Bad Request", 400
+
+    return jsonify({"message": message}), status
+
+
 @app.route("/api/get_cookie")
 def get_cookie():
     user_id = request.cookies.get("user_id")
@@ -80,13 +109,13 @@ def get_cookie():
         user_id = str(uuid.uuid4())
         print("New user, setting cookie")
 
-        new_user = User(user_id=user_id, pixels_left=10)
+        new_user = User(user_id=user_id, pixels_left=max_pixels_per_user)
         session.add(new_user)
 
         # Set a cookie that expires in 1 month
         expires = int(time.time()) + 60 * 60 * 24 * 30
 
-        response = make_response({"user_id": user_id})
+        response = make_response({"user_id": user_id, "is_first_time_user": True})
         response.set_cookie(
             "user_id",
             user_id,
@@ -107,7 +136,7 @@ def get_cookie():
 
         # if for some reason the user doesn't exist, create a new one
         if not user:
-            new_user = User(user_id=user_id, pixels_left=10)
+            new_user = User(user_id=user_id, pixels_left=max_pixels_per_user)
             session.add(new_user)
         else:
             user.last_seen_at = datetime.utcnow()
@@ -116,7 +145,7 @@ def get_cookie():
     session.commit()
     session.close()
 
-    return jsonify({"user_id": user_id})
+    return jsonify({"user_id": user_id, "is_first_time_user": False})
 
 
 @app.route("/api/get_canvas_size")
@@ -137,6 +166,65 @@ def get_msg():
 
     # data = {"message": "Hello from the backend!"}
     return jsonify(data)
+
+
+@app.route("/api/get_pixels_left")
+def get_user_pixels():
+    user_id = request.cookies.get("user_id")
+    session = Session()
+
+    pixels_left = session.query(User).filter_by(user_id=user_id).first().pixels_left
+
+    session.close()
+
+    return jsonify({"pixels_left": pixels_left})
+
+
+@app.route("/api/get_max_pixels_per_user")
+def get_max_pixels_per_user():
+    return jsonify({"max_pixels_per_user": max_pixels_per_user})
+
+
+@app.route("/api/get_max_cool_down_time")
+def get_max_cool_down_time():
+    return jsonify({"max_cool_down_seconds": max_cool_down_minutes * 60})
+
+
+@app.route("/api/get_cool_down_time_left")
+def get_cool_down_time_left():
+    user_id = request.cookies.get("user_id")
+    session = Session()
+
+    reset_at = (
+        session.query(User).filter_by(user_id=user_id).first().reset_pixel_placed_at
+    )
+
+    # set reset_at to utc
+    # breakpoint()
+
+    # Set now to utc
+    now = datetime.utcnow()
+    
+    # set tzinfo to utc
+    now = now.replace(tzinfo=timezone.utc)
+
+    print(f"Reset at: {reset_at}")
+    print(f"Now: {now}")
+
+    if not reset_at:
+        cool_down_time_left = None
+    else:
+        # breakpoint()
+        passed_seconds = (now - reset_at).total_seconds()
+        cool_down_time_left = max_cool_down_minutes * 60 - passed_seconds
+        print(f"Passed seconds: {passed_seconds}")
+        print(f"Cool down time left: {cool_down_time_left}")
+
+    session.close()
+
+    return jsonify({"cool_down_time_left": cool_down_time_left})
+
+
 
 
 @app.route("/")
@@ -169,6 +257,9 @@ def handle_message(message):
 
 @socketio.on("draw")
 def handle_draw(data):
+    now = datetime.utcnow()
+    now = now.replace(tzinfo=timezone.utc)
+
     user_id = data["userID"]
 
     color_int = int(data["color"][1:], 16)
@@ -178,9 +269,21 @@ def handle_draw(data):
     session = Session()
 
     user = session.query(User).filter_by(user_id=user_id).first()
-
+    user.pixels_left -= 1
     pixels_left = user.pixels_left
     print(f"User {user_id} has {pixels_left} pixels left")
+
+    # Setting cooldown time
+    reset_pixel_at = user.reset_pixel_placed_at
+    if reset_pixel_at is None:
+        user.reset_pixel_placed_at = now
+        reset_pixel_at = user.reset_pixel_placed_at
+    else:
+        # breakpoint()
+        if now - reset_pixel_at > timedelta(minutes=max_cool_down_minutes):
+            user.reset_pixel_placed_at = now
+            reset_pixel_at = user.reset_pixel_placed_at
+            # print("Resetting cooldown time")
 
     try:
         session.execute(
@@ -216,6 +319,5 @@ if __name__ == "__main__":
     if os.environ.get("FLASK_ENV") == "dev":
         print("Running in dev mode")
         debug = True
-    
 
     socketio.run(app, debug=debug)

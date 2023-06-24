@@ -1,24 +1,85 @@
-<div style="background-image: url('../../assets/images/musician pixel art background 1928x1072.png');
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: center;
-            height: 100vh;
-            min-width: 1000px;">
-<p>main-canvas works!</p>
-<div>
-    <input type="color" id="head" name="head"  [(ngModel)]="selectedPixelColor">
-</div>
-rect: {{rectCoordinates}}<br>
+<div #viewport style="background-image: url('../../assets/images/musician pixel art background 1928x1072.png');
+    background-repeat: repeat;
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 1200px;
+    ">
+
+<div class="heading">Roskilde Pixel Art</div>
+
+<!-- rect: {{rectCoordinates}}<br>
 unscaledCoordinates: {{unscaledCoordinates}}<br>
 drawableCoordinates: {{drawableCoordinates}}<br>
 finalCoordinates: {{finalCoordinates}}<br>
 pixelID: {{pixelID}}<br>
+this.isFirstTimeUser: {{this.isFirstTimeUser}}<br> -->
+<div *ngIf="isAdmin"> 
+    <button (click)="selectPixelsForDeletion()" *ngIf="isAdmin && !deleteMode">Remove Draw Mode; Put Delete Mode</button>
+    <button (click)="setDrawMode()" *ngIf="isAdmin && deleteMode">Remove Delete Mode; Put Draw Mode</button>    
+    <label for="password">Password:</label>
+    <input type="text" id="password" name="password" [(ngModel)]="password"><br><br>
+</div>
 
 
 
-<div id="container" style="display: flex; justify-content: center; align-items: center;">
+<div id="container" class="canvasContainer">
 <canvas #canvas id="canvas" [width]="canvasWidth" [height]="canvasHeight" ></canvas>
 </div>
-<div>Total Pixel Count:{{totalPixels}}</div>
-<button (click)="sendMessage('message','hello!')">send message</button>
+<div style="height:500px"></div>
+</div>
+
+<div class="messagePopup"  *ngIf="isFirstTimeUser">
+<div style="font-size: 23px;">Welcome!</div>
+&#10145;Tap on the canvas to place your pixel!<br>
+&#10145;Use two fingers to zoom or move around<br>  
+&#10145;You can place 70 pixels in 3 minutes<br>
+<!-- <div>Have fun!</div> -->
+<div class="pixel" (click)="closeWelcomeMessage()"><p>Okay!</p></div>
+  
+
+
+</div>
+
+<div class="footer" id="footer" #footer>
+  <div>  
+  <div style="    display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+">
+<div>{{ displayTime }}</div>
+    <div style="font-size: 12px;">to get more </div>
+    <div style="font-size: 12px;">pixels!</div>
+  </div>
+</div>
+  <div>
+      <div style="display: flex;">
+        <div class="color-box" style="background-color: #FFFFFF;" (click)="setColor('#FFFFFF')"></div>
+        <div class="color-box" style="background-color: #FFFF00	;" (click)="setColor('#FFFF00	')"></div>
+        <div class="color-box" style="background-color: #FF00FF;" (click)="setColor('#FF00FF')"></div>
+        <div class="color-box" style="background-color: #FF0000;" (click)="setColor('#FF0000')"></div>
+        <div class="color-box" style="background-color: #C0C0C0;" (click)="setColor('#C0C0C0')"></div>
+        <div class="color-box" style="background-color: #808080;" (click)="setColor('#808080')"></div>
+        <div class="color-box" style="background-color: #808000;" (click)="setColor('#808000')"></div>
+        <div class="color-box" style="background-color: #800080;" (click)="setColor('#800080')"></div>
+      </div>
+      <div style="display: flex;">
+        <div class="color-box" style="background-color: #800000;" (click)="setColor('#800000')"></div>
+        <div class="color-box" style="background-color: #00FFFF;" (click)="setColor('#00FFFF')"></div>
+        <div class="color-box" style="background-color: #00FF00;" (click)="setColor('#00FF00')"></div>
+        <div class="color-box" style="background-color: #008080;" (click)="setColor('#008080')"></div>
+        <div class="color-box" style="background-color: #008000;" (click)="setColor('#008000')"></div>
+        <div class="color-box" style="background-color: #0000FF;" (click)="setColor('#0000FF')"></div>
+        <div class="color-box" style="background-color: #000080;" (click)="setColor('#000080')"></div>
+        <div class="color-box" style="background-color: #000000;" (click)="setColor('#000000')"></div>
+      </div>
+    </div>
+    <div>
+      <div>{{totalPixels}} / {{totalAllowedPixels}}</div>
+      <div>pixels</div>
+    </div>
 </div>

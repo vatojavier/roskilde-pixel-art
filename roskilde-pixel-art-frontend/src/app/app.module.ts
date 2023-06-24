@@ -8,18 +8,20 @@ import { AppComponent } from './app.component';
 import { MainCanvasComponent } from './components/main-canvas/main-canvas.component';
 import { SocketIoModule } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
+import { AdminCanvasComponent } from './components/admin-canvas/admin-canvas.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MainCanvasComponent  ],
+    MainCanvasComponent,
+    AdminCanvasComponent  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
     SocketIoModule.forRoot({
-      url: environment.websocketUrl, // Replace with your WebSocket server URL
+      url: 'http://localhost:5000', // Replace with your WebSocket server URL
     }),
   ],
   providers: [],
