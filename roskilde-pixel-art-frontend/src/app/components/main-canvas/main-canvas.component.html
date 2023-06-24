@@ -33,11 +33,13 @@ this.isFirstTimeUser: {{this.isFirstTimeUser}}<br> -->
 </div>
 
 <div class="messagePopup"  *ngIf="isFirstTimeUser">
-
-  Tap on the canvas to place your pixel!<br>
-  Use two fingers to zoom or move around the canvas<br>  
-  You can place 70 pixels in 3 minutes<br>
-  Have fun!<br>
+<div style="font-size: 23px;">Welcome!</div>
+&#10145;Tap on the canvas to place your pixel!<br>
+&#10145;Use two fingers to zoom or move around<br>  
+&#10145;You can place 70 pixels in 3 minutes<br>
+<!-- <div>Have fun!</div> -->
+<div class="pixel" (click)="closeWelcomeMessage()"><p>Okay!</p></div>
+  
 
 
 </div>

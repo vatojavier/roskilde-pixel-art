@@ -456,6 +456,10 @@ export class MainCanvasComponent implements OnInit {
 
     }
   }
+
+  closeWelcomeMessage() {
+    this.isFirstTimeUser = false;
+  }
   sendPixelsForDeletion(selectedPixels: any[]) {
     const firstPixel = selectedPixels[0]
     const secondPixel = selectedPixels[1]
