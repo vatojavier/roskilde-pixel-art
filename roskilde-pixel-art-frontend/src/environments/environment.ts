@@ -4,7 +4,7 @@
 
 export const environment = {
   production: true,
-  websocketUrl: 'http://35.240.83.140/',
+  websocketUrl: 'https://roskildepixel.dk/',
 };
 
 /*
