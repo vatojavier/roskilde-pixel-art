@@ -90,6 +90,13 @@ export class MainCanvasComponent implements OnInit {
       console.log('isFirstTimeUser:', this.isFirstTimeUser);
       console.log('UserID:', this.userID);
 
+     
+
+
+      this.http.get('http://localhost:5000/api/get_max_pixels_per_user', { withCredentials: true }).subscribe((data: any) => {
+        console.log('Max pixels:', data);
+      });
+
       this.http.get('http://localhost:5000/api/get_pixels_left', { withCredentials: true }).subscribe((data: any) => {
         console.log('Pixels left:', data);
       });
@@ -104,11 +111,6 @@ export class MainCanvasComponent implements OnInit {
 
 
     });
-
-
-
-   
-
 
 
     // this.userID = document.cookie.replace(/(?:(?:^|.*;\s*)user_id\s*\=\s*([^;]*).*$)|^.*$/, "$1");
