@@ -251,7 +251,9 @@ export class MainCanvasComponent implements OnInit {
   }
   adjustFooter() {
     const footer: HTMLElement = this.footerRef.nativeElement;
-
+    if(this.isTvView){
+      footer.style.display = 'none';  
+    }
     footer.style.position = 'absolute';
     footer.style.left = `${window.pageXOffset}px`;
     footer.style.bottom = `${document.documentElement.clientHeight - (window.pageYOffset + window.innerHeight)}px`;

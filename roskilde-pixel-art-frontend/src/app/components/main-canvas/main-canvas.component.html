@@ -25,7 +25,24 @@ this.isFirstTimeUser: {{this.isFirstTimeUser}}<br> -->
 </div>
 
 
-
+<div style="display: flex;top: 15%;position: relative;">
+  <div class="color-box" style="background-color: #FFFFFF;" (click)="setColor('#FFFFFF')"></div>
+  <div class="color-box" style="background-color: #FFFF00	;" (click)="setColor('#FFFF00	')"></div>
+  <div class="color-box" style="background-color: #FF00FF;" (click)="setColor('#FF00FF')"></div>
+  <div class="color-box" style="background-color: #FF0000;" (click)="setColor('#FF0000')"></div>
+  <div class="color-box" style="background-color: #C0C0C0;" (click)="setColor('#C0C0C0')"></div>
+  <div class="color-box" style="background-color: #808080;" (click)="setColor('#808080')"></div>
+  <div class="color-box" style="background-color: #808000;" (click)="setColor('#808000')"></div>
+  <div class="color-box" style="background-color: #800080;" (click)="setColor('#800080')"></div>
+  <div class="color-box" style="background-color: #800000;" (click)="setColor('#800000')"></div>
+  <div class="color-box" style="background-color: #00FFFF;" (click)="setColor('#00FFFF')"></div>
+  <div class="color-box" style="background-color: #00FF00;" (click)="setColor('#00FF00')"></div>
+  <div class="color-box" style="background-color: #008080;" (click)="setColor('#008080')"></div>
+  <div class="color-box" style="background-color: #008000;" (click)="setColor('#008000')"></div>
+  <div class="color-box" style="background-color: #0000FF;" (click)="setColor('#0000FF')"></div>
+  <div class="color-box" style="background-color: #000080;" (click)="setColor('#000080')"></div>
+  <div class="color-box" style="background-color: #000000;" (click)="setColor('#000000')"></div>
+</div>
 <div id="container" class="canvasContainer">
 <canvas #canvas id="canvas" [width]="canvasWidth" [height]="canvasHeight" ></canvas>
 </div>
@@ -44,7 +61,7 @@ this.isFirstTimeUser: {{this.isFirstTimeUser}}<br> -->
 
 </div>
 
-<div class="footer" id="footer" #footer *ngIf="!isTvView">
+<div class="footer" id="footer" #footer>
   <div>  
   <div style="    display: flex;
   flex-direction: column;
