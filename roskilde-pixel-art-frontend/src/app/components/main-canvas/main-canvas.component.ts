@@ -55,6 +55,7 @@ export class MainCanvasComponent implements OnInit {
   serverURL: 'https://roskildepixel.dk/'
   timer: any;
   defaultTimeout: number = 5;
+  correctPassword: any = null;
   constructor(
     private http: HttpClient, // Error here
     private websocketService: WebsocketService,
@@ -84,33 +85,39 @@ export class MainCanvasComponent implements OnInit {
     // });
 
     // Set cookie and send it with the request
-    console.log(('https://roskildepixel.dk/'+'api/get_cookie'))
-    this.http.get('https://roskildepixel.dk/'+'api/get_cookie', { withCredentials: true }).subscribe((data: any) => {
+    console.log(('https://roskildepixel.dk/' + 'api/get_cookie'))
+    this.http.get('https://roskildepixel.dk/' + 'api/get_cookie', { withCredentials: true }).subscribe((data: any) => {
       console.log('Cookie:', data);
       this.userID = data.user_id;
       this.isFirstTimeUser = data.is_first_time_user;
       console.log('isFirstTimeUser:', this.isFirstTimeUser);
       console.log('UserID:', this.userID);
 
-     
 
 
-      this.http.get('https://roskildepixel.dk/'+'api/get_max_pixels_per_user', { withCredentials: true }).subscribe((data: any) => {
+
+      this.http.get('https://roskildepixel.dk/' + 'api/get_max_pixels_per_user', { withCredentials: true }).subscribe((data: any) => {
         console.log('Max pixels:', data);
+        this.totalAllowedPixels = data.max_pixels_per_user
       });
 
-      this.http.get('https://roskildepixel.dk/'+'api/get_pixels_left', { withCredentials: true }).subscribe((data: any) => {
+      this.http.get('https://roskildepixel.dk/' + 'api/get_pixels_left', { withCredentials: true }).subscribe((data: any) => {
         console.log('Pixels left:', data);
+        this.totalPixels = data.pixels_left
+
       });
 
-      this.http.get('https://roskildepixel.dk/'+'api/get_max_cool_down_time', { withCredentials: true }).subscribe((data: any) => {
+      this.http.get('https://roskildepixel.dk/' + 'api/get_max_cool_down_time', { withCredentials: true }).subscribe((data: any) => {
         console.log('max_cool_down_seconds:', data);
+        this.defaultTimeout = data.max_cool_down_seconds
+        this.remainingTime = data.max_cool_down_seconds
+        this.http.get('https://roskildepixel.dk/' + 'api/get_cool_down_time_left', { withCredentials: true }).subscribe((data: any) => {
+          console.log('cool_down_time_left:', data);
+          if (data.cool_down_time_left) {
+            this.remainingTime = data.cool_down_time_left
+          }
+        })
       });
-
-      this.http.get('https://roskildepixel.dk/'+'api/get_cool_down_time_left', { withCredentials: true }).subscribe((data: any) => {
-        console.log('cool_down_time_left:', data);
-      });
-
 
     });
 
@@ -190,7 +197,7 @@ export class MainCanvasComponent implements OnInit {
 
   }
   startTimer() {
-    clearInterval(this.timer); 
+    clearInterval(this.timer);
     this.timer = setInterval(() => {
       this.updateTime();
     }, 1000); // Update time every second
@@ -206,9 +213,9 @@ export class MainCanvasComponent implements OnInit {
 
       // Format the time as 'mm:ss'
       this.displayTime = `${this.padNumber(minutes)}:${this.padNumber(seconds)}`;
-      
+
       this.remainingTime--;
-    }else if (this.remainingTime===0){
+    } else if (this.remainingTime === 0) {
       clearInterval(this.timer);
       this.remainingTime = this.defaultTimeout
       console.log('this.remainingTime inside', this.remainingTime)
@@ -221,7 +228,7 @@ export class MainCanvasComponent implements OnInit {
     return String(number).padStart(2, '0');
   }
 
-  makeInitialDisplayTime(){
+  makeInitialDisplayTime() {
     const minutes = Math.floor(this.remainingTime / 60);
     const seconds = this.remainingTime % 60;
 
@@ -239,7 +246,7 @@ export class MainCanvasComponent implements OnInit {
   scrollToCenter() {
     const elementRect = this.viewport.nativeElement.getBoundingClientRect();
     const absoluteElementTop = elementRect.top + window.pageYOffset;
-    const middle = absoluteElementTop - (elementRect.height / 2);  
+    const middle = absoluteElementTop - (elementRect.height / 2);
     window.scrollTo(0, middle); // have a window object reference in your component
   }
   adjustFooter() {
@@ -248,10 +255,10 @@ export class MainCanvasComponent implements OnInit {
     footer.style.position = 'absolute';
     footer.style.left = `${window.pageXOffset}px`;
     footer.style.bottom = `${document.documentElement.clientHeight - (window.pageYOffset + window.innerHeight)}px`;
-    footer.style.transform = `scale(${window.innerWidth / document.documentElement.clientWidth})`;  
+    footer.style.transform = `scale(${window.innerWidth / document.documentElement.clientWidth})`;
   }
   fetchCanvasData(): void {
-    this.http.get<any[]>('https://roskildepixel.dk/'+'api/get_canvas').subscribe(
+    this.http.get<any[]>('https://roskildepixel.dk/' + 'api/get_canvas').subscribe(
       (data: any[]) => {
 
         this.canvasData = data;
@@ -305,13 +312,13 @@ export class MainCanvasComponent implements OnInit {
     // Draw the pixel
     this.context.fillStyle = color;
     this.context.fillRect(x * this.tileSizeX, y * this.tileSizeY, this.tileSizeX, this.tileSizeY);
-  }  
+  }
 
   sendMessage(event: string, messageObject: any): void {
     // this.websocketService.sendMessage(event, messageObject);
     this.websocketService.sendMessage(event, messageObject);
   }
-  
+
   setColor(color: string): void {
     this.selectedPixelColor = color;
   }
@@ -409,8 +416,35 @@ export class MainCanvasComponent implements OnInit {
   // draw(x: number, y: number, color: string = this.selectedPixelColor, emit: boolean = true, isOwner: boolean = true): void {
 
   //   console.log('draw', x, y);
+  checkPassword() {
+    let  response = false;
+    this.http.post<any>('https://roskildepixel.dk/' + 'api/check_password', {password: this.password}).subscribe(data => {
+      console.log('check password', data);
+      if (data.message === this.password){
+        this.correctPassword = this.password;
+        response =  true;
+      }
+      response =  false;
+    })
+    return response;
+  }
+  draw(x: number, y: number, color: string = this.selectedPixelColor, emit: boolean = true, isOwner: boolean = true) {
 
-  draw(x: number, y: number, color: string = this.selectedPixelColor, emit: boolean = true, isOwner: boolean = true): void {
+    if(this.totalPixels >= this.totalAllowedPixels){
+      if(this.isAdmin || this.isTvView){
+          if(!this.correctPassword){
+            if(!this.checkPassword()){
+              return
+            }
+          }else{
+            if(this.password !== this.correctPassword){
+              return
+            }
+          }
+      }else{
+      return}
+    }
+
 
 
     const canvasElement = this.canvas.nativeElement;
@@ -456,27 +490,26 @@ export class MainCanvasComponent implements OnInit {
       this.tileSizeY
     );
     if (emit) {
-      // this.sendMessage('draw', { x: canvasX, y: canvasY, color: color });      
+      // this.sendMessage('draw', { x: canvasX, y: canvasY, color: color }); 
+      if(!this.isAdmin){     
+      this.sendMessage('draw', { pixelID: this.pixelID, color: this.selectedPixelColor, userID: this.userID });}
+    } else if (!this.deleteMode) {
       this.sendMessage('draw', { pixelID: this.pixelID, color: this.selectedPixelColor, userID: this.userID });
     }
+    
     if (isOwner) {
       this.totalPixels += 1;
-      if(this.totalPixels===1){
-          this.startTimer();
+      if (this.totalPixels === 1) {
+        this.startTimer();
       }
     }
     if (this.deleteMode && this.isAdmin) {
-      console.log('inside draw [BEFORE]', this.selectedPixels)
       if (this.selectedPixels.length == 1) {
         this.selectedPixels.push(this.pixelID)
-        console.log('sending for deletion', this.selectedPixels)
-
         this.sendPixelsForDeletion(this.selectedPixels)
       } else {
         this.selectedPixels.push(this.pixelID)
       }
-      console.log('inside draw [AFTER]', this.selectedPixels)
-
     }
   }
 
@@ -507,7 +540,7 @@ export class MainCanvasComponent implements OnInit {
     console.log('pixelIds', pixelIds)
     this.selectedPixels = [];
     const data = { password: this.password, pixel_ids: pixelIds }
-    this.http.post<any>('https://roskildepixel.dk/'+'api/delete_pixels', data).subscribe(data => {
+    this.http.post<any>('https://roskildepixel.dk/' + 'api/delete_pixels', data).subscribe(data => {
       console.log('delete', data);
     }, error => {
       console.log('delete error', error)

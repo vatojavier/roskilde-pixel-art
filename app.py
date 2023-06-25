@@ -47,6 +47,7 @@ n_tiles = 45_000  # Number of tiles available for the users, DB has up to 80_000
 max_pixels_per_user = int(os.getenv("MAX_PIXELS_PER_USER"))
 max_cool_down_minutes = int(os.getenv("COOLDOWN_MINUTES"))
 
+correct_password = "correct"
 
 def load_canvas_from_db():
     global canvas_array
@@ -84,7 +85,7 @@ def delete_pixels():
     ):  # maybe a validation function here
         pixel_ids = parameters["pixel_ids"]
         password = parameters["password"]
-        if password == "correct":
+        if password == correct_password:
             try:
                 # delete here
                 message, status = "OK", 200
@@ -225,7 +226,9 @@ def get_cool_down_time_left():
     return jsonify({"cool_down_time_left": cool_down_time_left})
 
 
-
+@app.route("/api/check_password")
+def check_password():
+    return jsonify({"message": correct_password == request.get_json()['password']})
 
 @app.route("/")
 def index():
