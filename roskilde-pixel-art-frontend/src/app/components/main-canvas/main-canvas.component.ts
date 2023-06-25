@@ -52,7 +52,7 @@ export class MainCanvasComponent implements OnInit {
   timeTaken: any;
   deleteMode: boolean = false;
   selectedPixels: any[];
-  password: '';
+  password: string ='';
   serverURL: 'https://roskildepixel.dk/'
   timer: any;
   defaultTimeout: number = 5;
