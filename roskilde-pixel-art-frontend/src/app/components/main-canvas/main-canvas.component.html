@@ -25,7 +25,7 @@ this.isFirstTimeUser: {{this.isFirstTimeUser}}<br> -->
 </div>
 
 
-<div style="display: flex;top: 15%;position: relative;">
+<div style="display: flex;top: 15%;position: relative;" *ngIf="!isTvView">
   <div class="color-box" style="background-color: #FFFFFF;" (click)="setColor('#FFFFFF')"></div>
   <div class="color-box" style="background-color: #FFFF00	;" (click)="setColor('#FFFF00	')"></div>
   <div class="color-box" style="background-color: #FF00FF;" (click)="setColor('#FF00FF')"></div>
