@@ -32,7 +32,7 @@ this.isFirstTimeUser: {{this.isFirstTimeUser}}<br> -->
 <div style="height:500px"></div>
 </div>
 
-<div class="messagePopup"  *ngIf="isFirstTimeUser">
+<div class="messagePopup"  *ngIf="isFirstTimeUser  && !isTvView">
 <div style="font-size: 23px;">Welcome!</div>
 &#10145;Tap on the canvas to place your pixel!<br>
 &#10145;Use two fingers to zoom or move around<br>  
@@ -44,7 +44,7 @@ this.isFirstTimeUser: {{this.isFirstTimeUser}}<br> -->
 
 </div>
 
-<div class="footer" id="footer" #footer>
+<div class="footer" id="footer" #footer *ngIf="!isTvView">
   <div>  
   <div style="    display: flex;
   flex-direction: column;

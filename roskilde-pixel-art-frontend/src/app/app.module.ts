@@ -9,12 +9,15 @@ import { MainCanvasComponent } from './components/main-canvas/main-canvas.compon
 import { SocketIoModule } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
 import { AdminCanvasComponent } from './components/admin-canvas/admin-canvas.component';
+import { TvCanvasComponent } from './components/tv-canvas/tv-canvas.component';
+
 
 @NgModule({
   declarations: [
     AppComponent,
     MainCanvasComponent,
-    AdminCanvasComponent  ],
+    AdminCanvasComponent,
+    TvCanvasComponent  ],
   imports: [
     BrowserModule,
     AppRoutingModule,

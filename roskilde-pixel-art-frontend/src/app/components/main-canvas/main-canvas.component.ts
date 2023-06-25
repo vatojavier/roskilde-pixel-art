@@ -11,6 +11,7 @@ import { WebsocketService } from 'src/app/shared/services/websocket.service';
 
 export class MainCanvasComponent implements OnInit {
   @Input() isAdmin: boolean = false;
+  @Input() isTvView: boolean = false;
   @ViewChild('footer', { static: true }) footerRef: ElementRef;
   @ViewChild('viewport', { static: false }) viewport: ElementRef;
   remainingTime: number = 1; // get this from the server  -  in seconds
