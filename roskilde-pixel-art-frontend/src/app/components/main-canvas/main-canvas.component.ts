@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, NgModule, Input, HostListener
 import { HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { WebsocketService } from 'src/app/shared/services/websocket.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-main-canvas',
@@ -14,7 +15,7 @@ export class MainCanvasComponent implements OnInit {
   @Input() isTvView: boolean = false;
   @ViewChild('footer', { static: true }) footerRef: ElementRef;
   @ViewChild('viewport', { static: false }) viewport: ElementRef;
-  remainingTime: number = 1; // get this from the server  -  in seconds
+  remainingTime: number = 10; // get this from the server  -  in seconds
   displayTime: string; // Formatted time to display
   isFirstTimeUser: boolean = false;
   gridSize: number;
@@ -59,6 +60,7 @@ export class MainCanvasComponent implements OnInit {
   constructor(
     private http: HttpClient, // Error here
     private websocketService: WebsocketService,
+    private toastr: ToastrService
   ) {
 
   }
@@ -115,6 +117,7 @@ export class MainCanvasComponent implements OnInit {
           console.log('cool_down_time_left:', data);
           if (data.cool_down_time_left) {
             this.remainingTime = data.cool_down_time_left
+            this.startTimer()
           }
         })
       });
@@ -444,10 +447,9 @@ export class MainCanvasComponent implements OnInit {
             }
           }
       }else{
+        this.toastr.error('Wait ' + this.displayTime,'Exhausted all pixels!',{positionClass:'toast-bottom-center',toastClass: 'toastClassFont ngx-toastr'});
       return}
     }
-
-
 
     const canvasElement = this.canvas.nativeElement;
     const rect = canvasElement.getBoundingClientRect();

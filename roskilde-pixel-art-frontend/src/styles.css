@@ -1,2 +1,20 @@
 /* You can add global styles to this file, and also import other style files */
 @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+@import 'ngx-toastr/toastr';
+
+#toast-container > .toast {
+    /* background-image: none !important; */
+    font-family: 'VT323', monospace;
+  }
+  
+  .toast-container .ngx-toastr {
+    font-family: 'VT323', monospace;
+  
+  }
+  .toast-error {
+    font-family: 'VT323', monospace;
+  }
+  .toastClassFont {
+    font-family: 'VT323', monospace;
+    
+  }
