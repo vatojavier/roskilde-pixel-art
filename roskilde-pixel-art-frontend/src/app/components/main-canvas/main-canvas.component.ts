@@ -179,7 +179,7 @@ export class MainCanvasComponent implements OnInit {
     // }
 
     canvasElement.addEventListener('mousedown', this.handleMouseDown.bind(this));
-    canvasElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
+    // canvasElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
     canvasElement.addEventListener('mouseup', this.handleMouseUp.bind(this));
     canvasElement.addEventListener('pointerdown', this.handlePointerDown.bind(this));
     canvasElement.addEventListener('pointermove', this.handlePointerMove.bind(this));
