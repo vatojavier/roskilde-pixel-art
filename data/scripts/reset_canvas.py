@@ -7,7 +7,7 @@ import requests
 
 load_dotenv()
 
-color = 0xffffff
+color = 0xFFFFFF
 
 pg_user = os.getenv("PG_USER")
 pg_password = os.getenv("PG_PASSWORD")

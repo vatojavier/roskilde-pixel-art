@@ -22,7 +22,7 @@ export class MainCanvasComponent implements OnInit {
   pixelSize: number;
   selectedPixelColor = '#1aa8cb';
   isDrawing = false;
-  totalPixels = 0; // get this from cookie
+  pixelsLeft = 0; // get this from cookie
   totalAllowedPixels = 70;
   tileNumberX: number = 300;
   tileNumberY: number = 150;
@@ -52,8 +52,8 @@ export class MainCanvasComponent implements OnInit {
   timeTaken: any;
   deleteMode: boolean = false;
   selectedPixels: any[];
-  password: string ='';
-  serverURL: 'https://roskildepixel.dk/'
+  password: '';
+  serverURL: 'http://roskildepixel.dk/'
   timer: any;
   defaultTimeout: number = 5;
   correctPassword: any = null;
@@ -81,14 +81,15 @@ export class MainCanvasComponent implements OnInit {
     this.makeInitialDisplayTime()
     // this.remainingTime = 10;
     // Fetch msg from backend.
-    // this.http.get('http://localhost:5000/api/get_msg').subscribe((data: any) => {
+    // this.http.get('http://roskildepixel.dk/api/get_msg').subscribe((data: any) => {
     //   this.msg = data.message;
     //   console.log(this.msg);
     // });
 
     // Set cookie and send it with the request
-    console.log(('https://roskildepixel.dk/' + 'api/get_cookie'))
-    this.http.get('https://roskildepixel.dk/' + 'api/get_cookie', { withCredentials: true }).subscribe((data: any) => {
+    console.log(('http://roskildepixel.dk/'+'api/get_cookie'))
+
+    this.http.get('http://roskildepixel.dk/'+'api/get_cookie', { withCredentials: true }).subscribe((data: any) => {
       console.log('Cookie:', data);
       this.userID = data.user_id;
       this.isFirstTimeUser = data.is_first_time_user;
@@ -97,23 +98,23 @@ export class MainCanvasComponent implements OnInit {
 
 
 
-
-      this.http.get('https://roskildepixel.dk/' + 'api/get_max_pixels_per_user', { withCredentials: true }).subscribe((data: any) => {
+      this.http.get('http://roskildepixel.dk/'+'api/get_max_pixels_per_user', { withCredentials: true }).subscribe((data: any) => {
         console.log('Max pixels:', data);
         this.totalAllowedPixels = data.max_pixels_per_user
       });
 
-      this.http.get('https://roskildepixel.dk/' + 'api/get_pixels_left', { withCredentials: true }).subscribe((data: any) => {
+      this.http.get('http://roskildepixel.dk/'+'api/get_pixels_left', { withCredentials: true }).subscribe((data: any) => {
         console.log('Pixels left:', data);
-        this.totalPixels = data.pixels_left
+        this.pixelsLeft = data.pixels_left
 
       });
 
-      this.http.get('https://roskildepixel.dk/' + 'api/get_max_cool_down_time', { withCredentials: true }).subscribe((data: any) => {
+      this.http.get('http://roskildepixel.dk/'+'api/get_max_cool_down_time', { withCredentials: true }).subscribe((data: any) => {
         console.log('max_cool_down_seconds:', data);
         this.defaultTimeout = data.max_cool_down_seconds
         this.remainingTime = data.max_cool_down_seconds
-        this.http.get('https://roskildepixel.dk/' + 'api/get_cool_down_time_left', { withCredentials: true }).subscribe((data: any) => {
+
+        this.http.get('http://roskildepixel.dk/' + 'api/get_cool_down_time_left', { withCredentials: true }).subscribe((data: any) => {
           console.log('cool_down_time_left:', data);
           if (data.cool_down_time_left) {
             this.remainingTime = data.cool_down_time_left
@@ -121,6 +122,11 @@ export class MainCanvasComponent implements OnInit {
           }
         })
       });
+
+      this.http.get('http://roskildepixel.dk/'+'api/get_cool_down_time_left', { withCredentials: true }).subscribe((data: any) => {
+        console.log('cool_down_time_left:', data);
+      });
+
 
     });
 
@@ -223,7 +229,7 @@ export class MainCanvasComponent implements OnInit {
       this.remainingTime = this.defaultTimeout
       console.log('this.remainingTime inside', this.remainingTime)
       this.makeInitialDisplayTime()
-      this.totalPixels = 0
+      this.pixelsLeft = 0
     }
   }
 
@@ -263,7 +269,7 @@ export class MainCanvasComponent implements OnInit {
     footer.style.transform = `scale(${window.innerWidth / document.documentElement.clientWidth})`;
   }
   fetchCanvasData(): void {
-    this.http.get<any[]>('https://roskildepixel.dk/' + 'api/get_canvas').subscribe(
+    this.http.get<any[]>('http://roskildepixel.dk/'+'api/get_canvas').subscribe(
       (data: any[]) => {
 
         this.canvasData = data;
@@ -423,7 +429,7 @@ export class MainCanvasComponent implements OnInit {
   //   console.log('draw', x, y);
   checkPassword() {
     let  response = false;
-    this.http.post<any>('https://roskildepixel.dk/' + 'api/check_password', {password: this.password}).subscribe(data => {
+    this.http.post<any>('http://roskildepixel.dk/' + 'api/check_password', {password: this.password}).subscribe(data => {
       console.log('check password', data);
       if (data.message === this.password){
         this.correctPassword = this.password;
@@ -435,7 +441,7 @@ export class MainCanvasComponent implements OnInit {
   }
   draw(x: number, y: number, color: string = this.selectedPixelColor, emit: boolean = true, isOwner: boolean = true) {
 
-    if(this.totalPixels >= this.totalAllowedPixels){
+    if(this.pixelsLeft <= 0){
       if(this.isAdmin || this.isTvView){
           if(!this.correctPassword){
             if(!this.checkPassword()){
@@ -502,8 +508,8 @@ export class MainCanvasComponent implements OnInit {
     }
     
     if (isOwner) {
-      this.totalPixels += 1;
-      if (this.totalPixels === 1) {
+      this.pixelsLeft -= 1;
+      if (this.pixelsLeft === 1) {
         this.startTimer();
       }
     }
@@ -544,7 +550,7 @@ export class MainCanvasComponent implements OnInit {
     console.log('pixelIds', pixelIds)
     this.selectedPixels = [];
     const data = { password: this.password, pixel_ids: pixelIds }
-    this.http.post<any>('https://roskildepixel.dk/' + 'api/delete_pixels', data).subscribe(data => {
+    this.http.post<any>('http://roskildepixel.dk/'+'api/delete_pixels', data).subscribe(data => {
       console.log('delete', data);
     }, error => {
       console.log('delete error', error)

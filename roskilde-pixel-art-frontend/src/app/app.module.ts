@@ -28,7 +28,8 @@ import { ToastrModule } from 'ngx-toastr';
     BrowserAnimationsModule,
     ToastrModule.forRoot(),
     SocketIoModule.forRoot({
-      url: 'https://roskildepixel.dk/', // Replace with your WebSocket server URL
+      // url: 'https://roskildepixel.dk/', // Replace with your WebSocket server URL
+      url: 'http://localhost:5000/',
     }),
   ],
   providers: [],
