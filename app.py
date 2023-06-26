@@ -113,8 +113,8 @@ def get_cookie():
         new_user = User(user_id=user_id, pixels_left=max_pixels_per_user)
         session.add(new_user)
 
-        # Set a cookie that expires in 1 month
-        expires = int(time.time()) + 60 * 60 * 24 * 30
+        # Set a cookie that expires in 5 minutes
+        expires = int(time.time()) + 60 * 5
 
         response = make_response({"user_id": user_id, "is_first_time_user": True})
         response.set_cookie(
@@ -223,7 +223,7 @@ def get_cool_down_time_left():
 
     session.close()
 
-    return jsonify({"cool_down_time_left": cool_down_time_left})
+    return jsonify({"cool_down_time_left": int(cool_down_time_left)})
 
 
 @app.route("/api/check_password")
