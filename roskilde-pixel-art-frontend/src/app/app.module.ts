@@ -9,19 +9,27 @@ import { MainCanvasComponent } from './components/main-canvas/main-canvas.compon
 import { SocketIoModule } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
 import { AdminCanvasComponent } from './components/admin-canvas/admin-canvas.component';
+import { TvCanvasComponent } from './components/tv-canvas/tv-canvas.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
     AppComponent,
     MainCanvasComponent,
-    AdminCanvasComponent  ],
+    AdminCanvasComponent,
+    TvCanvasComponent  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
     SocketIoModule.forRoot({
-      url: 'https://roskildepixel.dk/', // Replace with your WebSocket server URL
+      // url: 'https://roskildepixel.dk/', // Replace with your WebSocket server URL
+      url: 'http://localhost:5000/',
     }),
   ],
   providers: [],

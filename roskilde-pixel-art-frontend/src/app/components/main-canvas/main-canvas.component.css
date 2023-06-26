@@ -70,7 +70,22 @@ canvas {
   /* Other styles for the footer */
 }
 
+#toast-container > .toast {
+  /* background-image: none !important; */
+  font-family: 'VT323', monospace;
+}
 
+.toast-container .ngx-toastr {
+  font-family: 'VT323', monospace;
+
+}
+.toast-error {
+  font-family: 'VT323', monospace;
+}
+.toastClassFont {
+  font-family: 'VT323', monospace;
+  
+}
 .pixel, .pixel2 {
   font-size: 25px;
   color: white;
