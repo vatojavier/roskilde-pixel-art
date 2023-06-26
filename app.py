@@ -223,7 +223,10 @@ def get_cool_down_time_left():
 
     session.close()
 
-    return jsonify({"cool_down_time_left": int(cool_down_time_left)})
+    if cool_down_time_left:
+        cool_down_time_left = int(cool_down_time_left)
+
+    return jsonify({"cool_down_time_left": cool_down_time_left})
 
 
 @app.route("/api/check_password")
