@@ -28,7 +28,7 @@ metadata.create_all(engine) # Ensures table creation if not existing yet
 
 for i in range(80_000):
     # Generate random tile and color, in hex and convert to int
-    color = 0xE5E8E8
+    color = 0xFFFFFF
     
     # Insert into the database
     query = canvas.insert().values(id=i, color=color)
