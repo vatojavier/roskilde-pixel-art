@@ -101,12 +101,14 @@ export class MainCanvasComponent implements OnInit {
       this.http.get('https://roskildepixel.dk/'+'api/get_max_pixels_per_user', { withCredentials: true }).subscribe((data: any) => {
         console.log('Max pixels:', data);
         this.totalAllowedPixels = data.max_pixels_per_user
+        this.makeInitialDisplayTime()
+
       });
 
       this.http.get('https://roskildepixel.dk/'+'api/get_pixels_left', { withCredentials: true }).subscribe((data: any) => {
         console.log('Pixels left:', data);
         this.pixelsLeft = data.pixels_left
-
+        this.makeInitialDisplayTime()
       });
 
       this.http.get('https://roskildepixel.dk/'+'api/get_max_cool_down_time', { withCredentials: true }).subscribe((data: any) => {
@@ -120,6 +122,8 @@ export class MainCanvasComponent implements OnInit {
             this.remainingTime = data.cool_down_time_left
             this.startTimer()
           }
+          this.makeInitialDisplayTime()
+
         })
       });
 
@@ -509,7 +513,7 @@ export class MainCanvasComponent implements OnInit {
     
     if (isOwner) {
       this.pixelsLeft -= 1;
-      if (this.pixelsLeft === 1) {
+      if (this.pixelsLeft === this.totalAllowedPixels-1) {
         this.startTimer();
       }
     }
