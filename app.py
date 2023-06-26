@@ -264,13 +264,26 @@ def handle_draw(data):
 
     color_int = int(data["color"][1:], 16)
     previous_color = canvas_array[data["pixelID"]]
-    canvas_array[data["pixelID"]] = color_int
+   
 
     session = Session()
 
     user = session.query(User).filter_by(user_id=user_id).first()
+    if not user:
+        print("User not found")
+        session.close()
+        return
+    
+    # breakpoint()
+    # Check if user has pixels left
+    if user.pixels_left <= 0:
+        print("User has no pixels left")
+        session.close()
+        return
+
     user.pixels_left -= 1
     pixels_left = user.pixels_left
+    canvas_array[data["pixelID"]] = color_int
     print(f"User {user_id} has {pixels_left} pixels left")
 
     # Setting cooldown time
