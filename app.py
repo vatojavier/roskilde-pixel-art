@@ -32,7 +32,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 engine = create_engine(f"postgresql://{pg_user}:{pg_password}@{pg_host}/roskildepixels")
 Session = sessionmaker(bind=engine)
-session = Session()
+# session = Session()
 
 metadata = MetaData()
 metadata.reflect(bind=engine)
@@ -55,6 +55,8 @@ def load_canvas_from_db():
     query = f"""
     SELECT color FROM canvas where id < {n_tiles} order by id asc
     """
+
+    session = Session()
 
     with engine.connect() as con:
         df = pd.read_sql_query(query, con)
