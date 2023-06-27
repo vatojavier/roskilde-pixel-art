@@ -211,6 +211,10 @@ export class MainCanvasComponent implements OnInit {
     // this.adjustFooter();
 
   }
+
+  formatWelcomeMessagetime(time: number){
+    return Math.round(time/60)
+  }
   startTimer() {
     clearInterval(this.timer);
     this.timer = setInterval(() => {
