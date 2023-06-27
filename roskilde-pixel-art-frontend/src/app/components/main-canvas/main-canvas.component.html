@@ -26,22 +26,23 @@ this.isFirstTimeUser: {{this.isFirstTimeUser}}<br> -->
 
 
 <div style="display: flex;top: 15%;position: relative;" *ngIf="!isTvView">
-  <div class="color-box" style="background-color: #FFFFFF;" (click)="setColor('#FFFFFF')"></div>
-  <div class="color-box" style="background-color: #FFFF00	;" (click)="setColor('#FFFF00	')"></div>
-  <div class="color-box" style="background-color: #FF00FF;" (click)="setColor('#FF00FF')"></div>
-  <div class="color-box" style="background-color: #FF0000;" (click)="setColor('#FF0000')"></div>
-  <div class="color-box" style="background-color: #C0C0C0;" (click)="setColor('#C0C0C0')"></div>
-  <div class="color-box" style="background-color: #808080;" (click)="setColor('#808080')"></div>
-  <div class="color-box" style="background-color: #808000;" (click)="setColor('#808000')"></div>
-  <div class="color-box" style="background-color: #800080;" (click)="setColor('#800080')"></div>
-  <div class="color-box" style="background-color: #800000;" (click)="setColor('#800000')"></div>
-  <div class="color-box" style="background-color: #00FFFF;" (click)="setColor('#00FFFF')"></div>
-  <div class="color-box" style="background-color: #00FF00;" (click)="setColor('#00FF00')"></div>
-  <div class="color-box" style="background-color: #008080;" (click)="setColor('#008080')"></div>
-  <div class="color-box" style="background-color: #008000;" (click)="setColor('#008000')"></div>
-  <div class="color-box" style="background-color: #0000FF;" (click)="setColor('#0000FF')"></div>
-  <div class="color-box" style="background-color: #000080;" (click)="setColor('#000080')"></div>
-  <div class="color-box" style="background-color: #000000;" (click)="setColor('#000000')"></div>
+  <div class="color-box" style="background-color: #FF0018;" (click)="setColor('#FF0018')"></div> <!-- Red for the LGBT flag -->
+  <div class="color-box" style="background-color: #FFA52C;" (click)="setColor('#FFA52C')"></div> <!-- Orange for the LGBT flag -->
+  <div class="color-box" style="background-color: #FFFF41;" (click)="setColor('#FFFF41')"></div> <!-- Yellow for the LGBT flag -->
+  <div class="color-box" style="background-color: #008018;" (click)="setColor('#008018')"></div> <!-- Green for the LGBT flag -->
+  <div class="color-box" style="background-color: #0000F9;" (click)="setColor('#0000F9')"></div> <!-- Blue for the LGBT flag -->
+  <div class="color-box" style="background-color: #86007D;" (click)="setColor('#86007D')"></div> <!-- Purple for the LGBT flag -->
+  <div class="color-box" style="background-color: #FFFFFF;" (click)="setColor('#FFFFFF')"></div> <!-- White for several flags -->
+  <div class="color-box" style="background-color: #000000;" (click)="setColor('#000000')"></div> <!-- Black for several flags -->
+  <div class="color-box" style="background-color: #FF0000;" (click)="setColor('#FF0000')"></div> <!-- Bright Red for several flags -->
+  <div class="color-box" style="background-color: #0000FF;" (click)="setColor('#0000FF')"></div> <!-- Bright Blue for several flags -->
+  <div class="color-box" style="background-color: #FFFF00;" (click)="setColor('#FFFF00')"></div> <!-- Bright Yellow for several flags -->
+  <div class="color-box" style="background-color: #009246;" (click)="setColor('#009246')"></div> <!-- A specific shade of Green commonly used in flags -->
+  <div class="color-box" style="background-color: #CE1126;" (click)="setColor('#CE1126')"></div> <!-- A specific shade of Red commonly used in flags -->
+  <div class="color-box" style="background-color: #0033A0;" (click)="setColor('#0033A0')"></div> <!-- A specific shade of Blue commonly used in flags -->
+  <div class="color-box" style="background-color: #FCD116;" (click)="setColor('#FCD116')"></div> <!-- A specific shade of Yellow commonly used in flags -->
+  <div class="color-box" style="background-color: #A7A9AC;" (click)="setColor('#A7A9AC')"></div> <!-- A specific shade of Gray commonly used in flags -->
+  
 </div>
 <div id="container" class="canvasContainer">
 <canvas #canvas id="canvas" [width]="canvasWidth" [height]="canvasHeight" ></canvas>
@@ -74,26 +75,27 @@ this.isFirstTimeUser: {{this.isFirstTimeUser}}<br> -->
   </div>
 </div>
   <div>
-      <div style="display: flex;">
-        <div class="color-box" style="background-color: #FFFFFF;" (click)="setColor('#FFFFFF')"></div>
-        <div class="color-box" style="background-color: #FFFF00	;" (click)="setColor('#FFFF00	')"></div>
-        <div class="color-box" style="background-color: #FF00FF;" (click)="setColor('#FF00FF')"></div>
-        <div class="color-box" style="background-color: #FF0000;" (click)="setColor('#FF0000')"></div>
-        <div class="color-box" style="background-color: #C0C0C0;" (click)="setColor('#C0C0C0')"></div>
-        <div class="color-box" style="background-color: #808080;" (click)="setColor('#808080')"></div>
-        <div class="color-box" style="background-color: #808000;" (click)="setColor('#808000')"></div>
-        <div class="color-box" style="background-color: #800080;" (click)="setColor('#800080')"></div>
-      </div>
-      <div style="display: flex;">
-        <div class="color-box" style="background-color: #800000;" (click)="setColor('#800000')"></div>
-        <div class="color-box" style="background-color: #00FFFF;" (click)="setColor('#00FFFF')"></div>
-        <div class="color-box" style="background-color: #00FF00;" (click)="setColor('#00FF00')"></div>
-        <div class="color-box" style="background-color: #008080;" (click)="setColor('#008080')"></div>
-        <div class="color-box" style="background-color: #008000;" (click)="setColor('#008000')"></div>
-        <div class="color-box" style="background-color: #0000FF;" (click)="setColor('#0000FF')"></div>
-        <div class="color-box" style="background-color: #000080;" (click)="setColor('#000080')"></div>
-        <div class="color-box" style="background-color: #000000;" (click)="setColor('#000000')"></div>
-      </div>
+    <div style="display: flex;">
+      <div class="color-box" style="background-color: #FF0018;" (click)="setColor('#FF0018')"></div> <!-- Red for the LGBT flag -->
+      <div class="color-box" style="background-color: #FFA52C;" (click)="setColor('#FFA52C')"></div> <!-- Orange for the LGBT flag -->
+      <div class="color-box" style="background-color: #FFFF41;" (click)="setColor('#FFFF41')"></div> <!-- Yellow for the LGBT flag -->
+      <div class="color-box" style="background-color: #008018;" (click)="setColor('#008018')"></div> <!-- Green for the LGBT flag -->
+      <div class="color-box" style="background-color: #0000F9;" (click)="setColor('#0000F9')"></div> <!-- Blue for the LGBT flag -->
+      <div class="color-box" style="background-color: #86007D;" (click)="setColor('#86007D')"></div> <!-- Purple for the LGBT flag -->
+      <div class="color-box" style="background-color: #FFFFFF;" (click)="setColor('#FFFFFF')"></div> <!-- White for several flags -->
+      <div class="color-box" style="background-color: #000000;" (click)="setColor('#000000')"></div> <!-- Black for several flags -->
+    </div>
+    <div style="display: flex;">
+      <div class="color-box" style="background-color: #FF0000;" (click)="setColor('#FF0000')"></div> <!-- Bright Red for several flags -->
+      <div class="color-box" style="background-color: #0000FF;" (click)="setColor('#0000FF')"></div> <!-- Bright Blue for several flags -->
+      <div class="color-box" style="background-color: #FFFF00;" (click)="setColor('#FFFF00')"></div> <!-- Bright Yellow for several flags -->
+      <div class="color-box" style="background-color: #009246;" (click)="setColor('#009246')"></div> <!-- A specific shade of Green commonly used in flags -->
+      <div class="color-box" style="background-color: #CE1126;" (click)="setColor('#CE1126')"></div> <!-- A specific shade of Red commonly used in flags -->
+      <div class="color-box" style="background-color: #0033A0;" (click)="setColor('#0033A0')"></div> <!-- A specific shade of Blue commonly used in flags -->
+      <div class="color-box" style="background-color: #FCD116;" (click)="setColor('#FCD116')"></div> <!-- A specific shade of Yellow commonly used in flags -->
+      <div class="color-box" style="background-color: #A7A9AC;" (click)="setColor('#A7A9AC')"></div> <!-- A specific shade of Gray commonly used in flags -->
+    </div>
+    
     </div>
     <div>
       <div>{{pixelsLeft}} / {{totalAllowedPixels}}</div>
