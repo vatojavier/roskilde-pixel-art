@@ -503,9 +503,10 @@ export class MainCanvasComponent implements OnInit {
       // this.sendMessage('draw', { x: canvasX, y: canvasY, color: color }); 
       if(!this.isAdmin){     
       this.sendMessage('draw', { pixelID: this.pixelID, color: this.selectedPixelColor, userID: this.userID });}
-    } else if (!this.deleteMode) {
-      this.sendMessage('draw', { pixelID: this.pixelID, color: this.selectedPixelColor, userID: this.userID });
-    }
+      else if (!this.deleteMode && this.isAdmin){} {
+        this.sendMessage('draw', { pixelID: this.pixelID, color: this.selectedPixelColor, userID: this.userID });
+      }
+    } 
     
     if (isOwner) {
       this.pixelsLeft -= 1;
