@@ -108,7 +108,7 @@ def get_cookie():
 
     if not user_id:
         user_id = str(uuid.uuid4())
-        print("New user, setting cookie")
+        # print("New user, setting cookie")
 
         new_user = User(user_id=user_id, pixels_left=max_pixels_per_user)
         session.add(new_user)
@@ -130,7 +130,7 @@ def get_cookie():
         return response
     else:
         cookie = request.cookies.get("user_id")
-        print(f"Returning user with cookie: {cookie}")
+        # print(f"Returning user with cookie: {cookie}")
 
         # Update User's last_seen_at
         user = session.query(User).filter_by(user_id=user_id).first()
@@ -151,7 +151,7 @@ def get_cookie():
 
 @app.route("/api/get_canvas_size")
 def get_msg():
-    print("Getting canvas size")
+    # print("Getting canvas size")
     n_tiles_x = int(os.environ.get("N_TILES_X"))
     n_tiles_y = int(os.environ.get("N_TILES_Y"))
 
@@ -209,8 +209,8 @@ def get_cool_down_time_left():
     # set tzinfo to utc
     now = now.replace(tzinfo=timezone.utc)
 
-    print(f"Reset at: {reset_at}")
-    print(f"Now: {now}")
+    # print(f"Reset at: {reset_at}")
+    # print(f"Now: {now}")
 
     if not reset_at:
         cool_down_time_left = None
@@ -218,8 +218,8 @@ def get_cool_down_time_left():
         # breakpoint()
         passed_seconds = (now - reset_at).total_seconds()
         cool_down_time_left = max_cool_down_minutes * 60 - passed_seconds
-        print(f"Passed seconds: {passed_seconds}")
-        print(f"Cool down time left: {cool_down_time_left}")
+        # print(f"Passed seconds: {passed_seconds}")
+        # print(f"Cool down time left: {cool_down_time_left}")
 
     session.close()
 
@@ -257,7 +257,7 @@ def trigger():
 
 @socketio.on("message")
 def handle_message(message):
-    print("Message received:", message)
+    # print("Message received:", message)
     emit("response", {"data": "Message received: " + message}, broadcast=True)
 
 
@@ -276,21 +276,21 @@ def handle_draw(data):
 
     user = session.query(User).filter_by(user_id=user_id).first()
     if not user:
-        print("User not found")
+        # print("User not found")
         session.close()
         return
     
     # breakpoint()
     # Check if user has pixels left
     if user.pixels_left <= 0:
-        print("User has no pixels left")
+        # print("User has no pixels left")
         session.close()
         return
 
     user.pixels_left -= 1
     pixels_left = user.pixels_left
     canvas_array[data["pixelID"]] = color_int
-    print(f"User {user_id} has {pixels_left} pixels left")
+    # print(f"User {user_id} has {pixels_left} pixels left")
 
     # Setting cooldown time
     reset_pixel_at = user.reset_pixel_placed_at
