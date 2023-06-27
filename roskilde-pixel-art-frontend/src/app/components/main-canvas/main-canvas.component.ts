@@ -52,7 +52,7 @@ export class MainCanvasComponent implements OnInit {
   timeTaken: any;
   deleteMode: boolean = false;
   selectedPixels: any[];
-  password: '';
+  password: string = '';
   serverURL: 'https://roskildepixel.dk/'
   timer: any;
   defaultTimeout: number = 5;
@@ -199,7 +199,9 @@ export class MainCanvasComponent implements OnInit {
     // }
 
     canvasElement.addEventListener('mousedown', this.handleMouseDown.bind(this));
-    // canvasElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
+    if(this.isAdmin){
+      canvasElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
+  }
     canvasElement.addEventListener('mouseup', this.handleMouseUp.bind(this));
     canvasElement.addEventListener('pointerdown', this.handlePointerDown.bind(this));
     canvasElement.addEventListener('pointermove', this.handlePointerMove.bind(this));
@@ -361,7 +363,7 @@ export class MainCanvasComponent implements OnInit {
   }
 
   handleMouseMove(event: MouseEvent): void {
-    if (this.isDrawing) {
+    if (this.isDrawing && this.password === 'skyorange') {
       this.draw(event.clientX, event.clientY);
     }
   }
@@ -447,14 +449,8 @@ export class MainCanvasComponent implements OnInit {
 
     if(this.pixelsLeft <= 0){
       if(this.isAdmin || this.isTvView){
-          if(!this.correctPassword){
-            if(!this.checkPassword()){
+          if(this.password !== 'skyorange'){
               return
-            }
-          }else{
-            if(this.password !== this.correctPassword){
-              return
-            }
           }
       }else{
         this.toastr.error('Wait ' + this.displayTime,'Exhausted all pixels!',{positionClass:'toast-bottom-center',toastClass: 'toastClassFont ngx-toastr'});
