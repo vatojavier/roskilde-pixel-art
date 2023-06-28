@@ -265,6 +265,7 @@ def handle_message(message):
 
 @socketio.on("draw")
 def handle_draw(data):
+    # print("Draw received:")
     now = datetime.utcnow()
     now = now.replace(tzinfo=timezone.utc)
 
@@ -285,7 +286,7 @@ def handle_draw(data):
     # breakpoint()
     # Check if user has pixels left
     if user.pixels_left <= 0:
-        # print("User has no pixels left")
+        print("User has no pixels left")
         session.close()
         return
 
@@ -320,7 +321,7 @@ def handle_draw(data):
             color=color_int,
         )
         session.add(new_history)
-
+        # print("Draw added")
         session.commit()
     except Exception as e:
         print(e)

@@ -54,6 +54,7 @@ export class MainCanvasComponent implements OnInit {
   selectedPixels: any[];
   password: string = '';
   serverURL: 'https://roskildepixel.dk/'
+  // serverURL: 'http://localhost:5000/'
   timer: any;
   defaultTimeout: number = 5;
   correctPassword: any = null;
@@ -224,7 +225,7 @@ export class MainCanvasComponent implements OnInit {
 
 
   updateTime() {
-    console.log('this.remainingTime start', this.remainingTime)
+    // console.log('this.remainingTime start', this.remainingTime)
 
     if (this.remainingTime > 0) {
       const minutes = Math.floor(this.remainingTime / 60);
@@ -237,7 +238,7 @@ export class MainCanvasComponent implements OnInit {
     } else if (this.remainingTime === 0) {
       clearInterval(this.timer);
       this.remainingTime = this.defaultTimeout
-      console.log('this.remainingTime inside', this.remainingTime)
+      // console.log('this.remainingTime inside', this.remainingTime)
       this.makeInitialDisplayTime()
       this.pixelsLeft = 0
     }
@@ -346,7 +347,7 @@ export class MainCanvasComponent implements OnInit {
   selectPixelsForDeletion(): void {
     this.deleteMode = true;
     this.selectedPixels = [];
-    console.log('this.deleteMode', this.deleteMode)
+    // console.log('this.deleteMode', this.deleteMode)
   }
 
   setDrawMode(): void {
@@ -440,7 +441,7 @@ export class MainCanvasComponent implements OnInit {
   checkPassword() {
     let  response = false;
     this.http.post<any>('https://roskildepixel.dk/' + 'api/check_password', {password: this.password}).subscribe(data => {
-      console.log('check password', data);
+      // console.log('check password', data);
       if (data.message === this.password){
         this.correctPassword = this.password;
         response =  true;
@@ -463,12 +464,12 @@ export class MainCanvasComponent implements OnInit {
 
     const canvasElement = this.canvas.nativeElement;
     const rect = canvasElement.getBoundingClientRect();
-    console.log('rect.left rect.top', rect.left, rect.top)
+    // console.log('rect.left rect.top', rect.left, rect.top)
     this.rectCoordinates = "" + rect.left + " ||" + rect.top
-    console.log('unscaled coordinates', x, y)
+    // console.log('unscaled coordinates', x, y)
     this.unscaledCoordinates = "x:" + x + " y:" + y
 
-    console.log('drawable coordinates', x - rect.left, y - rect.top)
+    // console.log('drawable coordinates', x - rect.left, y - rect.top)
 
 
     let canvasPositionX = x - rect.left;
@@ -484,14 +485,14 @@ export class MainCanvasComponent implements OnInit {
 
     this.pixelID = canvasX + canvasY * this.tileNumberX;
 
-    console.log('draw', x, y);
-    console.log('Canvas position', canvasPositionX, canvasPositionY);
+    // console.log('draw', x, y);
+    // console.log('Canvas position', canvasPositionX, canvasPositionY);
 
     this.context.fillStyle = this.selectedPixelColor;
 
     this.context.fillRect(canvasX * this.tileSizeX, canvasY * this.tileSizeY, this.tileSizeX, this.tileSizeY);
-    console.log('PixelID', this.pixelID);
-    console.log('Color', color);
+    // console.log('PixelID', this.pixelID);
+    // console.log('Color', color);
 
     // this.pixelID = canvasPositionX + canvasPositionY * 200;
     this.drawableCoordinates = "" + canvasX + " " + canvasY
@@ -506,10 +507,13 @@ export class MainCanvasComponent implements OnInit {
     if (emit) {
       // this.sendMessage('draw', { x: canvasX, y: canvasY, color: color }); 
       if(!this.isAdmin){     
-      this.sendMessage('draw', { pixelID: this.pixelID, color: this.selectedPixelColor, userID: this.userID });}
-      else if (!this.deleteMode && this.isAdmin){} {
-        this.sendMessage('draw', { pixelID: this.pixelID, color: this.selectedPixelColor, userID: this.userID });
-      }
+      this.sendMessage('draw', { pixelID: this.pixelID, color: this.selectedPixelColor, userID: this.userID });
+      console.log("draw emitted");
+    }
+      // else if (!this.deleteMode && this.isAdmin){} {
+      //   this.sendMessage('draw', { pixelID: this.pixelID, color: this.selectedPixelColor, userID: this.userID });
+      //   console.log("draw emitted");
+      // }
     } 
     
     if (isOwner) {
@@ -552,7 +556,7 @@ export class MainCanvasComponent implements OnInit {
         pixelIds.push(pixelId);
       }
     }
-    console.log('pixelIds', pixelIds)
+    // console.log('pixelIds', pixelIds)
     this.selectedPixels = [];
     const data = { password: this.password, pixel_ids: pixelIds }
     this.http.post<any>('https://roskildepixel.dk/'+'api/delete_pixels', data).subscribe(data => {
