@@ -53,8 +53,8 @@ export class MainCanvasComponent implements OnInit {
   deleteMode: boolean = false;
   selectedPixels: any[];
   password: string = '';
+  // serverURL: 'https://roskildepixel.dk/'
   serverURL: 'https://roskildepixel.dk/'
-  // serverURL: 'http://localhost:5000/'
   timer: any;
   defaultTimeout: number = 5;
   correctPassword: any = null;

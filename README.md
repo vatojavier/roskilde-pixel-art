@@ -1,4 +1,5 @@
-# roskilde-pixel-art
+
+# Interactive collaborative pixel art project for Roskilde Festival 2023 in collaboration with DTU.
 
 ## Install requirements
 1. Install requirements
