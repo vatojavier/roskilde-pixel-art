@@ -1,6 +1,8 @@
 
 # Interactive collaborative pixel art project for Roskilde Festival 2023 in collaboration with DTU.
 
+![Final canvas](final.jpeg?raw=true "Title")
+
 ## Install requirements
 1. Install requirements
 ```
